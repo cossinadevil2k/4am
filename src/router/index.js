@@ -1,27 +1,45 @@
-import Vue from 'vue'
-import VueRouter from 'vue-router'
-import Home from '../views/Home.vue'
-
-Vue.use(VueRouter)
+import Vue from "vue";
+import VueRouter from "vue-router";
+Vue.use(VueRouter);
 
 const routes = [
   {
-    path: '/',
-    name: 'Home',
-    component: Home
+    path: "/window-manage/list",
+    name: "WindowManageList",
+    component: () => import("@/views/WindowManage/List"),
+    meta: {
+      title: "窗口列表",
+    },
   },
   {
-    path: '/about',
-    name: 'About',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/About.vue')
-  }
-]
+    path: "/window-manage/detail",
+    name: "WindowManageDetail",
+    component: () => import("@/views/WindowManage/List/Detail"),
+    meta: {
+      title: "窗口列表",
+    },
+  },
+  {
+    path: "/setting/system",
+    name: "SettingSystem",
+    component: () => import("@/views/Setting/System"),
+    meta: {
+      title: "系统设置",
+    },
+  },
+  {
+    path: "/log/script",
+    name: "LogScript",
+    component: () => import("@/views/Log/ScriptLog"),
+    meta: {
+      title: "脚本日志",
+    },
+  },
+
+];
 
 const router = new VueRouter({
-  routes
-})
+  routes,
+});
 
-export default router
+export default router;

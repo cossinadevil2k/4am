@@ -1,0 +1,95 @@
+<template>
+  <el-container style="height: 100%; border: 1px solid #eee">
+    <el-aside width="200px" style="background-color: rgb(238, 241, 246)">
+      <el-menu :default-openeds="['1']" router>
+        <el-submenu
+          v-for="(item, index) in menus"
+          :key="index"
+          :index="`${index}`"
+        >
+          <template slot="title"
+            ><i :class="item.icon"></i>{{ item.name }}</template
+          >
+          <el-menu-item
+            v-for="(submenu, subIndex) in item.children"
+            :key="`${index}-${subIndex}`"
+            :index="submenu.path"
+            >{{ submenu.name }}</el-menu-item
+          >
+        </el-submenu>
+      </el-menu>
+    </el-aside>
+
+    <el-container class="page-view">
+      <slot></slot>
+    </el-container>
+  </el-container>
+</template>
+
+<script>
+export default {
+  data() {
+    return {
+      menus: [
+        {
+          name: "窗口管理",
+          icon: "el-icon-menu",
+          children: [
+            {
+              name: "窗口列表",
+              path: "/window-manage/list",
+            },
+          ],
+        },
+        {
+          name: "日志",
+          icon: "el-icon-menu",
+          children: [
+            {
+              name: "脚本日志",
+              path: "/log/script",
+            },
+          ],
+        },
+        {
+          name: "设置",
+          icon: "el-icon-setting",
+          children: [
+            {
+              name: "系统设置",
+              path: "/setting/system",
+            },
+          ],
+        },
+      ],
+    };
+  },
+};
+</script>
+<style lang="less">
+.el-header {
+  background-color: #b3c0d1;
+  color: #333;
+  line-height: 60px;
+}
+
+.el-aside {
+  color: #333;
+  background-color: #fff;
+}
+.el-menu {
+  height: 100%;
+  text-align: left;
+  .el-menu-item {
+    font-size: 12px;
+    padding-left: 50px !important;
+  }
+}
+</style>
+<style lang="less" scoped>
+.page-view {
+  padding: 20px;
+  background: #eee;
+  padding-bottom: 40px;
+}
+</style>
