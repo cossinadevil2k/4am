@@ -70,6 +70,10 @@ export default {
       line-height: 40px;
       margin-right: 10px;
     }
+    .header-left{
+      display: flex;
+      align-items: center;
+    }
     // ::v-deep .el-pagination{
     //     justify-self: flex-end;
     // }

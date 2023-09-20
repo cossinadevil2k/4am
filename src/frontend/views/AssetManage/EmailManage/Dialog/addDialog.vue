@@ -7,6 +7,18 @@
       <el-form-item label="邮箱" prop="email">
         <el-input v-model="form.email" size="small"></el-input>
       </el-form-item>
+      <el-form-item label="代理主机" prop="proxy_host">
+        <el-input v-model="form.proxy_host" size="small"></el-input>
+      </el-form-item>
+      <el-form-item label="代理端口" prop="proxy_port">
+        <el-input v-model="form.proxy_port" size="small"></el-input>
+      </el-form-item>
+      <el-form-item label="代理账号" prop="proxy_username">
+        <el-input v-model="form.proxy_username" size="small"></el-input>
+      </el-form-item>
+      <el-form-item label="代理密码" prop="proxy_password">
+        <el-input v-model="form.proxy_password" size="small"></el-input>
+      </el-form-item>
       <el-form-item label="备注" prop="remark">
         <el-input v-model="form.remark" size="small"></el-input>
       </el-form-item>
@@ -27,6 +39,10 @@ export default {
       form: {
         name: "",
         email: "",
+        proxy_host: "",
+        proxy_port: "",
+        proxy_username: "",
+        proxy_password: "",
         remark: "",
       },
       rules: {
@@ -35,14 +51,13 @@ export default {
           { required: true, message: "请输入邮箱", trigger: "blur" },
           { type: "email", message: "请输入有效的邮箱地址", trigger: "blur" },
         ],
-        token: [{ required: false, message: "请输入Token", trigger: "blur" }],
       },
     }
   },
   methods: {
     async open(oldForm) {
       if (oldForm.id) {
-        this.form = { ...oldForm }
+        this.form = { ...this.form, ...oldForm }
       } else {
         const seq = await this.getNewSeq()
         // 在打开弹窗时接收默认名称和默认序号并填充到表单中
@@ -76,7 +91,7 @@ export default {
       this.$emit("success")
     },
     async update(form) {
-      console.log(form, 'from')
+      console.log(form, "from")
       await update({ id: form.id, ...form })
       this.$emit("success")
     },

@@ -1,5 +1,5 @@
 <template>
-  <PageCard :title="`${$route.meta.title} ${$route.query.email}`">
+  <PageCard :title="`${$route.meta.title} ${$route.query.email}`" goBack>
     <el-row slot="header-right">
       <el-button type="primary" :loading="loading" size="small" @click="getEmail">获取邮件</el-button>
     </el-row>
@@ -28,7 +28,7 @@ export default {
   methods: {
     async getEmail() {
       this.loading = true
-      const res = await mails(this.$route.query.email).finally(() => {
+      const res = await mails(this.$route.query.id).finally(() => {
         this.loading = false
       })
       this.tableData = res.data.map(v => ({...v, date: dayjs(new Date(v.date)).format('YYYY-MM-DD HH:mm:ss')}))

@@ -36,8 +36,8 @@ export const getEmail = async (req, res) => {
 }
 
 export const updateEmail = async (req, res) => {
-  const { id, name, email } = req.body
-  await emailService.updateEmail(id, name, email)
+  const { id, ...rest } = req.body
+  await emailService.updateEmail(id, rest)
   res.json({ code: responseCodes.SUCCESS, message: "Email updated successfully", data: null })
 }
 
@@ -72,8 +72,18 @@ export const getToken = async (req, res) => {
 }
 export const getMails = async (req, res) => {
   try {
-    const { email } = req.params
-    const token = await emailService.getMails(email)
+    const { id } = req.params
+    const token = await emailService.getMails(id)
+    res.json({ code: responseCodes.SUCCESS, message: "successfully", data: token })
+  } catch (error) {
+    console.log(error)
+    res.json({ code: responseCodes.INTERNAL_SERVER_ERROR, message: error.message, data: null })
+  }
+}
+export const check = async (req, res) => {
+  try {
+    const { id } = req.params
+    const token = await emailService.check(id)
     res.json({ code: responseCodes.SUCCESS, message: "successfully", data: token })
   } catch (error) {
     console.log(error)

@@ -55,8 +55,8 @@ export const getEmailById = async (id) => {
   return await db.email.findOne({ _id: id })
 }
 
-export const updateEmail = async (id, name, email) => {
-  const updatedEmail = { name, email, updated_at: new Date() }
+export const updateEmail = async (id, rest) => {
+  const updatedEmail = { ...rest, updated_at: new Date() }
   await db.email.update({ _id: id }, { $set: updatedEmail })
 }
 
@@ -65,7 +65,7 @@ export const deleteEmails = async (ids) => {
   return result
 }
 
-export const getEmails = async ({ currentPage = 1, pageSize = 20, query = {}, sort = { created_at: -1 } }) => {
+export const getEmails = async ({ currentPage = 1, pageSize = 20, query = {}, sort = { created_at: 1 } }) => {
   const list = await db.email
     .find(query)
     .sort(sort)
@@ -90,6 +90,13 @@ export const getEmailCount = async () => {
   return await db.email.count()
 }
 
+export const check = async (id) => {
+  const email = await db.email.findOne({ _id: id })
+  const status = await checkMailStatus(email.email)
+  await db.email.update({ _id: id }, { $set: { status } })
+  return null
+}
+
 export const checkMailStatus = async (email) => {
   const mail = new Mail(email)
   const { credentialsExist, tokenExist } = await mail.checkCredentialsAndTokenExist()
@@ -105,8 +112,18 @@ export const getToken = async (email) => {
     return true
   }
 }
-export const getMails = async (email) => {
-  const mail = new Mail(email)
+export const getMails = async (id) => {
+  const email = await db.email.findOne({ _id: id })
+  let proxy = null
+  if (email.proxy_host && email.proxy_port) {
+    proxy = {
+      host: email.proxy_host,
+      port: email.proxy_port,
+      userId: email.proxy_username,
+      password: email.proxy_password,
+    }
+  }
+  const mail = new Mail(email.email, proxy)
   const mails = await mail.getMails({ maxResults: 10 })
   return mails
 }

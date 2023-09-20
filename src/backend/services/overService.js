@@ -326,6 +326,20 @@ export const updateSetting = async (setting) => {
 }
 
 export const getSetting = async () => {
-  const setting = await db.setting_over.findOne({ type: "over" })
+  let setting = await db.setting_over.findOne({ type: "over" })
+
+  // 如果没有找到设置，就创建一个新的设置项
+  if (!setting) {
+    const defaultSetting = {
+      type: "over",
+      setting: {
+        invite_code: ""
+        /* 默认设置内容 */
+      },
+    }
+    await db.setting_over.insert(defaultSetting)
+    setting = defaultSetting
+  }
+
   return setting?.setting
 }

@@ -1,19 +1,4 @@
-# our-script
-
-## Project setup
-```
-yarn install
-```
-
-### Compiles and hot-reloads for development
-```
-yarn serve
-```
-
-### Compiles and minifies for production
-```
-yarn build
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+##### todo
++ gmail请求邮件代理配置(已完成但是刷新token时理论上还是用的本地ip)
++ 热更新
++ 修改应用标题图标,修改安装界面

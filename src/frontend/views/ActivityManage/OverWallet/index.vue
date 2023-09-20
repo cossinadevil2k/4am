@@ -8,6 +8,7 @@
       <el-table-column type="selection" width="55"></el-table-column>
       <el-table-column prop="email" label="邮箱" min-width="240"> </el-table-column>
       <el-table-column prop="over_name" label="名称" min-width="100"> </el-table-column>
+      <el-table-column prop="my_invite_code" label="邀请码" min-width="120"> </el-table-column>
       <el-table-column prop="status" label="状态" min-width="100">
         <template #default="{ row }">
           <span>{{ OVER_STATUS_TEXT[row.status] }}</span>
@@ -16,7 +17,6 @@
       <el-table-column prop="point" label="分数" min-width="100"> </el-table-column>
       <el-table-column prop="last_claim_at" label="领分时间" min-width="120"> </el-table-column>
       <el-table-column prop="last_quiz_at" label="答题时间" min-width="120"> </el-table-column>
-
       <el-table-column prop="remark" label="备注" min-width="160"> </el-table-column>
       <el-table-column prop="created_at" label="创建时间" min-width="140"></el-table-column>
       <el-table-column prop="operate" label="操作" min-width="180">

@@ -73,6 +73,10 @@ export default {
               name: "系统设置",
               path: "/setting/system",
             },
+            {
+              name: "Over设置",
+              path: "/setting/over",
+            },
           ],
         },
       ],

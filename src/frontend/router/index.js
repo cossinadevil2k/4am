@@ -56,6 +56,14 @@ const routes = [
     },
   },
   {
+    path: "/setting/over",
+    name: "Setting_Over",
+    component: () => import("@/views/Setting/Over"),
+    meta: {
+      title: "Over设置",
+    },
+  },
+  {
     path: "/log/script",
     name: "Log_Script",
     component: () => import("@/views/Log/ScriptLog"),

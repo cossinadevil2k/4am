@@ -53,9 +53,15 @@ export function token(email) {
     method: "get",
   })
 }
-export function mails(email) {
+export function check(id) {
   return http({
-    url: `/email/mails/${email}`,
+    url: `/email/check/${id}`,
+    method: "get",
+  })
+}
+export function mails(id) {
+  return http({
+    url: `/email/mails/${id}`,
     method: "get",
   })
 }

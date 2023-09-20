@@ -14,13 +14,19 @@
           <span>{{ EMAIL_STATUS_TEXT[row.status] }}</span>
         </template>
       </el-table-column>
+      <el-table-column prop="proxy" label="代理" min-width="180">
+        <template #default="{ row }">
+          <span v-if="row.proxy_host">{{ `${row.proxy_host}:${row.proxy_port}` }}</span>
+          <span v-else>-</span>
+        </template>
+      </el-table-column>
       <el-table-column prop="remark" label="备注" min-width="160"> </el-table-column>
       <el-table-column prop="created_at" label="创建时间" min-width="140"></el-table-column>
       <el-table-column prop="operate" label="操作" min-width="180">
         <template #default="{ row }">
-          <el-button v-if="EMAIL_STATUS_CONST.CREATED === row.status" type="text" size="mini">检测apikey</el-button>
+          <el-button v-if="EMAIL_STATUS_CONST.CREATED === row.status" type="text" size="mini" @click="check(row)">检测apikey</el-button>
           <el-button v-if="EMAIL_STATUS_CONST.CREDENTIALS === row.status" type="text" size="mini" @click="getToken(row)">获取token</el-button>
-          <el-button v-if="EMAIL_STATUS_CONST.TOKEN === row.status" type="text" size="mini" @click="$router.push({ name: 'AssetManage_EmailManage_MailList', query: { email: row.email } })"
+          <el-button v-if="EMAIL_STATUS_CONST.TOKEN === row.status" type="text" size="mini" @click="$router.push({ name: 'AssetManage_EmailManage_MailList', query: { email: row.email, id: row.id } })"
             >管理邮件</el-button
           >
           <el-button type="text" size="mini" @click="openAccountDialog(row)">编辑</el-button>
@@ -48,7 +54,7 @@
 import { mapState } from "vuex"
 import AddDialog from "./Dialog/addDialog.vue"
 import AddMultiDialog from "./Dialog/addMultiDialog.vue"
-import { list, remove, token } from "@/api/email"
+import { list, remove, token, check } from "@/api/email"
 import { EMAIL_STATUS_TEXT, EMAIL_STATUS_CONST } from "SHARE/email"
 export default {
   components: { AddDialog, AddMultiDialog },
@@ -84,6 +90,10 @@ export default {
       this.tableData = res.data.list
       console.log(this.pageInfo, res)
       this.pageInfo.total = res.data.pageInfo.total
+    },
+    async check(row) {
+      const res = await check(row.id)
+      this.getList()
     },
     async getToken(row) {
       const res = await token(row.email)

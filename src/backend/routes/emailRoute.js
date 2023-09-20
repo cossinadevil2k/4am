@@ -11,6 +11,7 @@ router.post("/email/remove", emailController.deleteEmail)
 router.get("/email/list", emailController.getEmailList)
 router.get("/email/count", emailController.getCount)
 router.get("/email/token/:email", emailController.getToken)
-router.get("/email/mails/:email", emailController.getMails)
+router.get("/email/check/:id", emailController.check)
+router.get("/email/mails/:id", emailController.getMails)
 
 export default router
