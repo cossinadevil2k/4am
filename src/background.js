@@ -11,6 +11,8 @@ const isDevelopment = process.env.NODE_ENV !== "production"
 
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([{ scheme: "app", privileges: { secure: true, standard: true } }])
+const result = null ?? 'default';
+console.log('Result:', result); // 如果 Babel 生效，这里应该打印 "Result: default"
 
 async function createWindow() {
   // Create the browser window.

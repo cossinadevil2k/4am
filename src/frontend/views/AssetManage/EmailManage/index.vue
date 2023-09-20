@@ -3,32 +3,33 @@
     <el-row slot="header-right">
       <el-button type="primary" size="mini" @click="getList" title="刷新列表">查询</el-button>
       <el-button type="primary" size="mini" @click="openAccountDialog" title="新增账号">新增</el-button>
+      <el-button type="primary" size="mini" @click="() => $refs.addMultiDialog.open()" title="批量新增">批量新增</el-button>
     </el-row>
     <el-table v-loading="loading" :data="tableData" style="width: 100%" height="100%" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55"></el-table-column>
       <el-table-column prop="email" label="邮箱" min-width="240"> </el-table-column>
-      <el-table-column prop="name" label="名称" min-width="100"> </el-table-column>
+      <el-table-column prop="name" label="名称" min-width="140"> </el-table-column>
       <el-table-column prop="status" label="状态" min-width="100">
         <template #default="{ row }">
-          <span>{{ OVER_STATUS_TEXT[row.status] }}</span>
+          <span>{{ EMAIL_STATUS_TEXT[row.status] }}</span>
         </template>
       </el-table-column>
-      <el-table-column prop="point" label="分数" min-width="100"> </el-table-column>
-      <el-table-column prop="last_claim_at" label="领分时间" min-width="120"> </el-table-column>
-      <el-table-column prop="last_quiz_at" label="答题时间" min-width="120"> </el-table-column>
-
       <el-table-column prop="remark" label="备注" min-width="160"> </el-table-column>
       <el-table-column prop="created_at" label="创建时间" min-width="140"></el-table-column>
       <el-table-column prop="operate" label="操作" min-width="180">
         <template #default="{ row }">
-          <el-button type="text" size="mini" @click="getDailyReward(row)">运行</el-button>
-          <el-button type="text" size="mini" @click="getDailyQuiz(row)">获取问题和答案</el-button>
+          <el-button v-if="EMAIL_STATUS_CONST.CREATED === row.status" type="text" size="mini">检测apikey</el-button>
+          <el-button v-if="EMAIL_STATUS_CONST.CREDENTIALS === row.status" type="text" size="mini" @click="getToken(row)">获取token</el-button>
+          <el-button v-if="EMAIL_STATUS_CONST.TOKEN === row.status" type="text" size="mini" @click="$router.push({ name: 'AssetManage_EmailManage_MailList', query: { email: row.email } })"
+            >管理邮件</el-button
+          >
           <el-button type="text" size="mini" @click="openAccountDialog(row)">编辑</el-button>
           <el-button type="text" size="mini" @click="removeAccount(row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
     <AddDialog ref="addDialog" @success="getList"></AddDialog>
+    <AddMultiDialog ref="addMultiDialog" @success="getList"></AddMultiDialog>
     <el-button slot="footer-left" type="primary" @click="batchDelete" :disabled="!selectedEmails.length" size="small">批量删除</el-button>
     <el-pagination
       slot="footer-right"
@@ -46,10 +47,11 @@
 <script>
 import { mapState } from "vuex"
 import AddDialog from "./Dialog/addDialog.vue"
-import { list, remove, dailyReward, dailyQuiz } from "@/api/over"
-import { OVER_STATUS_CONST, OVER_STATUS_TEXT } from "SHARE/over"
+import AddMultiDialog from "./Dialog/addMultiDialog.vue"
+import { list, remove, token } from "@/api/email"
+import { EMAIL_STATUS_TEXT, EMAIL_STATUS_CONST } from "SHARE/email"
 export default {
-  components: { AddDialog },
+  components: { AddDialog, AddMultiDialog },
   data() {
     return {
       tableData: [],
@@ -62,8 +64,8 @@ export default {
         total: 0,
       },
       loading: false,
-      OVER_STATUS_CONST,
-      OVER_STATUS_TEXT,
+      EMAIL_STATUS_TEXT,
+      EMAIL_STATUS_CONST,
     }
   },
   computed: {
@@ -127,15 +129,6 @@ export default {
       this.$message.success("删除成功")
       this.getList()
       this.selectedEmails = [] // 清空选中的邮箱数组
-    },
-    async getDailyReward(row) {
-      console.log("getDailyReward", row)
-      await dailyReward(row.email)
-      this.getList()
-    },
-    async getDailyQuiz(row) {
-      console.log("getDailyQuiz", row)
-      await dailyQuiz(row.email)
     },
   },
 }

@@ -2,14 +2,8 @@
   <div class="m-page-card">
     <div class="m-header">
       <div class="header-left">
-        <el-button
-          v-if="goBack"
-          class="back"
-          type="text"
-          icon="el-icon-back"
-          @click="back"
-        ></el-button>
-        <h4>{{ $route.meta.title }}</h4>
+        <el-button v-if="goBack" class="back" type="text" icon="el-icon-back" @click="back"></el-button>
+        <h4>{{ title || this.$route.meta.title }}</h4>
         <slot name="header-left"> </slot>
       </div>
 
@@ -35,20 +29,24 @@
 <script>
 export default {
   props: {
+    title: {
+      type: String,
+      default: "",
+    },
     goBack: {
       type: Boolean,
       default: false,
     },
   },
   data() {
-    return {};
+    return {}
   },
   methods: {
     back() {
-      this.$router.go(-1);
+      this.$router.go(-1)
     },
   },
-};
+}
 </script>
 <style lang="less" scoped>
 .m-page-card {

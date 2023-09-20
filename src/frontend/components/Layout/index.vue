@@ -1,7 +1,7 @@
 <template>
   <el-container style="height: 100%; border: 1px solid #eee">
     <el-aside width="200px" style="background-color: rgb(238, 241, 246)">
-      <el-menu :default-openeds="['1']" router>
+      <el-menu :default-openeds="['0']" router>
         <el-submenu
           v-for="(item, index) in menus"
           :key="index"
@@ -32,12 +32,16 @@ export default {
     return {
       menus: [
         {
-          name: "窗口管理",
+          name: "资源管理",
           icon: "el-icon-menu",
           children: [
             {
-              name: "窗口列表",
-              path: "/window-manage/list",
+              name: "窗口管理",
+              path: "/asset-manage/window-manage",
+            },
+            {
+              name: "邮箱管理",
+              path: "/asset-manage/email-manage",
             },
           ],
         },

@@ -1,16 +1,14 @@
 <template>
   <el-dialog :visible.sync="dialogVisible" title="填写信息" width="500px" @close="clearForm">
     <el-form :model="form" ref="form" :rules="rules" label-width="100px">
-      <el-form-item label="邮箱" prop="email">
-        <el-select v-model="form.email" size="small" style="width: 100%" @change="handleChange">
-          <el-option v-for="item in emails" :key="item.id" :value="item.email">{{ item.email }}</el-option>
-        </el-select>
-      </el-form-item>
       <el-form-item label="名称" prop="name">
         <el-input v-model="form.name" size="small"></el-input>
       </el-form-item>
+      <el-form-item label="邮箱" prop="email">
+        <el-input v-model="form.email" size="small"></el-input>
+      </el-form-item>
       <el-form-item label="备注" prop="remark">
-        <el-input v-model="form.remark" type="textarea" size="small"></el-input>
+        <el-input v-model="form.remark" size="small"></el-input>
       </el-form-item>
     </el-form>
     <div slot="footer" class="dialog-footer">
@@ -21,7 +19,7 @@
 </template>
 
 <script>
-import { emails, add, update } from "@/api/over"
+import { add, update, count } from "@/api/email"
 export default {
   data() {
     return {
@@ -31,9 +29,8 @@ export default {
         email: "",
         remark: "",
       },
-      emails: [],
       rules: {
-        name: [{ required: false, message: "请输入名称", trigger: "blur" }],
+        name: [{ required: true, message: "请输入名称", trigger: "blur" }],
         email: [
           { required: true, message: "请输入邮箱", trigger: "blur" },
           { type: "email", message: "请输入有效的邮箱地址", trigger: "blur" },
@@ -44,15 +41,14 @@ export default {
   },
   methods: {
     async open(oldForm) {
-      if (oldForm._id) {
+      if (oldForm.id) {
         this.form = { ...oldForm }
+      } else {
+        const seq = await this.getNewSeq()
+        // 在打开弹窗时接收默认名称和默认序号并填充到表单中
+        this.form.name = `账号 ${seq}`
       }
-      this.getEmails()
       this.dialogVisible = true
-    },
-    async getEmails() {
-      const res = await emails()
-      this.emails = res.data
     },
     submitForm() {
       this.$refs.form.validate(async (valid) => {
@@ -66,13 +62,13 @@ export default {
         }
       })
     },
-    handleChange(address) {
-      const email = this.emails.find((item) => item.email === address)
-      this.form.name = email.name
-    },
     clearForm() {
       const { form } = this.$options.data()
       this.form = form
+    },
+    async getNewSeq() {
+      const res = await count()
+      return res.data + 1
     },
     async add(form) {
       const res = await add({ ...form })
@@ -80,7 +76,7 @@ export default {
       this.$emit("success")
     },
     async update(form) {
-      console.log(form, "from")
+      console.log(form, 'from')
       await update({ id: form.id, ...form })
       this.$emit("success")
     },

@@ -5,24 +5,40 @@ Vue.use(VueRouter);
 const routes = [
   {
     path: '/',
-    redirect: '/window-manage/list'
+    redirect: '/asset-manage/window-manage'
   },
   {
-    path: "/window-manage/list",
-    name: "WindowManage_List",
-    component: () => import("@/views/WindowManage/List"),
+    path: "/asset-manage/window-manage",
+    name: "AssetManage_WindowManage",
+    component: () => import("@/views/AssetManage/WindowManage"),
     meta: {
-      title: "窗口列表",
+      title: "窗口管理",
     },
   },
   {
-    path: "/window-manage/detail",
-    name: "WindowManage_Detail",
-    component: () => import("@/views/WindowManage/List/Detail"),
+    path: "/asset-manage/email-manage",
+    name: "AssetManage_EmailManage",
+    component: () => import("@/views/AssetManage/EmailManage"),
     meta: {
-      title: "窗口列表",
+      title: "邮箱管理",
     },
   },
+  {
+    path: "/asset-manage/email-manage/mail-list",
+    name: "AssetManage_EmailManage_MailList",
+    component: () => import("@/views/AssetManage/EmailManage/Child/MailList"),
+    meta: {
+      title: "邮件列表",
+    },
+  },
+  // {
+  //   path: "/window-manage/detail",
+  //   name: "WindowManage_Detail",
+  //   component: () => import("@/views/WindowManage/List/Detail"),
+  //   meta: {
+  //     title: "窗口列表",
+  //   },
+  // },
   {
     path: "/activity-manage/over-wallet",
     name: "ActivityManage_OverWallet",
