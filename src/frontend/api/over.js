@@ -40,11 +40,14 @@ export function emails() {
     method: "get",
   })
 }
-export function dailyReward(email) {
+export function dailyReward(email, answer) {
   return http(
     {
       url: `/over/dailyReward/${email}`,
       method: "get",
+      params: {
+        answer,
+      },
     },
     {
       timeout: 1000 * 60 * 5,
@@ -61,4 +64,17 @@ export function dailyQuiz(email) {
       timeout: 1000 * 60 * 5,
     }
   )
+}
+export function getSetting() {
+  return http({
+    url: `/over/getSetting`,
+    method: "get",
+  })
+}
+export function updateSetting(data) {
+  return http({
+    url: `/over/updateSetting`,
+    method: "post",
+    data,
+  })
 }

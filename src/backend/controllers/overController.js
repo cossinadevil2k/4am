@@ -59,7 +59,10 @@ export const getEmails = async (req, res) => {
 
 export const getDailyReward = async (req, res) => {
   try {
-    const { email, answer } = req.params
+    const { email } = req.params
+    const { answer } = req.query
+    console.log('开始完成每日任务')
+    console.log(email, answer)
     const emailRecord = await overService.getDailyReward(email, answer)
     res.json({ code: responseCodes.SUCCESS, message: "success", data: emailRecord })
   } catch (error) {
@@ -71,6 +74,26 @@ export const getDailyQuiz = async (req, res) => {
     const { email } = req.params
     const emailRecord = await overService.getDailyQuiz(email)
     res.json({ code: responseCodes.SUCCESS, message: "success", data: emailRecord })
+  } catch (error) {
+    res.json({ code: responseCodes.INTERNAL_SERVER_ERROR, message: error.message, data: null })
+  }
+}
+
+
+export const getSetting = async (req, res) => {
+  try {
+    const setting = await overService.getSetting()
+    res.json({ code: responseCodes.SUCCESS, message: "success", data: setting })
+  } catch (error) {
+    res.json({ code: responseCodes.INTERNAL_SERVER_ERROR, message: error.message, data: null })
+  }
+}
+
+export const updateSetting = async (req, res) => {
+  try {
+    const setting = req.body
+    await overService.updateSetting(setting)
+    res.json({ code: responseCodes.SUCCESS, message: "success", data: null })
   } catch (error) {
     res.json({ code: responseCodes.INTERNAL_SERVER_ERROR, message: error.message, data: null })
   }

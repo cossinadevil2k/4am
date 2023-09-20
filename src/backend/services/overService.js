@@ -44,7 +44,7 @@ export const getAccounts = async ({ currentPage = 1, pageSize = 20, query = {}, 
       updated_at: formatTime(updated_at),
       last_claim_at: formatTime(last_claim_at, "MM-DD HH:mm:ss"),
       last_quiz_at: formatTime(last_quiz_at, "MM-DD HH:mm:ss"),
-      status: formatStatus(last_claim_at, last_quiz_at),
+      status: formatStatus(item),
       ...rest,
     }
   })
@@ -52,14 +52,14 @@ export const getAccounts = async ({ currentPage = 1, pageSize = 20, query = {}, 
   const total = await db.over.count()
   return { list: formattedList, pageInfo: { currentPage, pageSize, total } }
 }
-const formatStatus = (last_claim_at, last_quiz_at) => {
+const formatStatus = ({ last_claim_at, last_quiz_at, can_solve = true }) => {
   const isSameDay = (timestamp1, timestamp2) => {
     const date1 = dayjs(timestamp1)
     const date2 = dayjs(timestamp2)
     return date1.isSame(date2, "day")
   }
   const UNCLAIM = !last_claim_at || !isSameDay(last_claim_at, new Date())
-  const UNQUIZE = !last_quiz_at || !isSameDay(last_quiz_at, new Date())
+  const UNQUIZE = !last_quiz_at || !isSameDay(last_quiz_at, new Date()) || (isSameDay(last_quiz_at, new Date()) && can_solve)
 
   if (UNCLAIM && UNQUIZE) {
     return OVER_STATUS_CONST.UNFINISHED
@@ -100,12 +100,18 @@ export const getEmails = async () => {
 
 export const getDailyQuiz = async (email) => {
   const { tokens, cookie } = await getToken(email) // 获取 token
-  const { question, choices } = await completeQuestion(cookie, tokens.access_token, "***********") // 完成问卷
-  return { question, choices }
+  console.log("获取任务信息")
+  const { res, cookie: cookie7 } = await overApi.missionInfo(cookie, tokens.access_token)
+  console.log(res.data)
+  const { quiz_id } = res.data
+  console.log("获取问题")
+  const { res: quiz } = await overApi.quizStart(cookie7, tokens.access_token, quiz_id)
+  return { question: quiz.data.question, choices: quiz.data.choices }
 }
 
 export const getDailyReward = async (email, answer) => {
   let cookie = ""
+  let response = {}
   const { tokens, cookie: cookie5 } = await getToken(email) // 获取 token
   cookie = cookie5
   console.log("领分")
@@ -119,22 +125,20 @@ export const getDailyReward = async (email, answer) => {
       next_claim_available_from: new Date(claim.data.next_claim_available_from).getTime(),
       claim_reward: claim.data.reward,
     }
+    response.claim_success = true
+    response.claim_reward = claim.data.reward
   }
   if (!claim.data && claim.code === -14) {
     updateInfo = {
       last_claim_at: new Date().getTime(),
     }
+    response.claim_success = false
   }
   await _updateAccount(email, updateInfo)
   if (answer) {
-    const { res: quizRes } = await completeQuestion(cookie, tokens.access_token, answer) // 完成问卷
-    if (quizRes) {
-      await _updateAccount(email, {
-        last_quiz_at: new Date().getTime(),
-      })
-    } else {
-      console.log("已答过题或答案错误")
-    }
+    const { is_success, quiz_reward } = await completeQuestion(email, cookie, tokens.access_token, answer) // 完成问卷
+    response.quiz_success = is_success
+    response.quiz_reward = quiz_reward
   }
   console.log("开始查分")
   const { res: point } = await overApi.getPoint(cookie, tokens.access_token) // 获取积分
@@ -143,6 +147,8 @@ export const getDailyReward = async (email, answer) => {
     point: point.data.point,
     previous_point: point.data.previous_point,
   })
+
+  return response
   // if (!mailState.is_signup) {
   //   // 未注册
   // }
@@ -162,7 +168,7 @@ const getOverEmail = async (email) => {
   if (match) {
     const url = match[1]
     console.log(`URL: ${url}`)
-    const text = await fetch(url).then(res => res.text())
+    const text = await fetch(url).then((res) => res.text())
     await sleep(1000)
     return text
   }
@@ -177,7 +183,7 @@ const getMailStatus = async (cookie, verifier, email, elapsedTime = 0) => {
   }
   await getOverEmail(email)
   console.log("获取验证状态")
-  const { res, cookie: cookie4 } = await overApi.getMailStatus(cookie, { verifier } )
+  const { res, cookie: cookie4 } = await overApi.getMailStatus(cookie, { verifier })
   console.log(res.data)
   if (!res.data) {
     await sleep(5000) // 等待5秒
@@ -186,34 +192,57 @@ const getMailStatus = async (cookie, verifier, email, elapsedTime = 0) => {
   return { res: res.data, cookie: cookie4 }
 }
 
-const completeQuestion = async (cookie, token, answer) => {
+const completeQuestion = async (email, cookie, token, answer) => {
   console.log("获取任务信息")
   const { res, cookie: cookie7 } = await overApi.missionInfo(cookie, token)
   console.log(res.data)
   const { quiz_status, quiz_id } = res.data
+  let updateInfo = {
+    can_solve: false,
+    last_quiz_at: new Date().getTime(),
+  }
+  let response = {
+    is_success: false,
+  }
   if (quiz_status === "can_solve") {
     console.log("获取问题")
     const { res: quiz, cookie: cookie8 } = await overApi.quizStart(cookie7, token, quiz_id)
     console.log(quiz.data)
     console.log("提交答案")
-    const answerIdx = quiz.data.choices.indexOf(answer) + 1
+    const answerIdx = quiz.data.choices.findIndex((v) => v.toLowerCase().includes(answer.toLowerCase())) + 1
+    console.log(answerIdx)
     if (answerIdx === 0) {
-      console.log("答案错误")
-      return { res: null, cookie: cookie8, question: quiz.data.question, choices: quiz.data.choices }
+      console.log("未找到对应答案")
+      return { question: quiz.data.question, choices: quiz.data.choices }
     }
     const { res: submitRes, cookie: cookie9 } = await overApi.quizSubmit(cookie8, token, quiz_id, {
-      answer_list: [],
+      answer_list: [answerIdx],
     })
+    if (submitRes.data.quiz_status === "failed") {
+      updateInfo = { can_solve: false }
+      response = { is_success: false }
+    }
+    if (submitRes.data.quiz_status === "can_solve") {
+      updateInfo = { can_solve: true }
+      response = { is_success: false }
+    }
+    if (submitRes.data.quiz_status === "solved") {
+      updateInfo = { can_solve: false }
+      response = { is_success: true, quiz_reward: submitRes.data.reward }
+    }
     console.log(submitRes)
-    return { res: submitRes, cookie: cookie9 }
-  } else return { res: null, cookie: cookie7 }
+  }
+  await _updateAccount(email, updateInfo)
+  return response
 }
 
 const getToken = async (email) => {
+  console.log("执行登录逻辑")
   const account = await db.over.findOne({ email })
   if (!account) {
     throw new Error("Email not exist")
   }
+  console.log(account)
   const { cookie: cookie1 } = await overApi.getVersion()
   let tokens = { access_token: account.access_token, refresh_token: account.refresh_token }
   let cookie = cookie1
@@ -241,9 +270,9 @@ const getToken = async (email) => {
     const { res: userInfo } = await overApi.signin(cookie, tokens.access_token)
     // 更新操作：更新用户信息
     await _updateAccount(email, {
-      my_invite_code: userInfo.my_invite_code,
-      over_name: userInfo.name,
-      timezone: userInfo.timezone,
+      my_invite_code: userInfo.data.my_invite_code,
+      over_name: userInfo.data.name,
+      timezone: userInfo.data.timezone,
     })
     console.log(userInfo)
   } catch (error) {
@@ -280,4 +309,23 @@ const _updateAccount = async (email, account) => {
       },
     }
   )
+}
+
+export const updateSetting = async (setting) => {
+  await db.setting_over.update(
+    { type: "over" },
+    {
+      $set: {
+        setting,
+      },
+    },
+    {
+      upsert: true,
+    }
+  )
+}
+
+export const getSetting = async () => {
+  const setting = await db.setting_over.findOne({ type: "over" })
+  return setting?.setting
 }

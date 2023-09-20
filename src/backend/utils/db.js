@@ -15,6 +15,10 @@ const db = {
     autoload: true,
     filename: path.join(dbPath, "over.db"),
   }),
+  setting_over: Datastore.create({
+    autoload: true,
+    filename: path.join(dbPath, "setting_over.db"),
+  }),
 }
 
 export default db

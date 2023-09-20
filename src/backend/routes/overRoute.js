@@ -12,4 +12,7 @@ router.get("/over/emails", overController.getEmails)
 router.get("/over/dailyReward/:email", overController.getDailyReward)
 router.get("/over/dailyQuiz/:email", overController.getDailyQuiz)
 
+router.get("/over/getSetting", overController.getSetting)
+router.post("/over/updateSetting", overController.updateSetting)
+
 export default router

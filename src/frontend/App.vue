@@ -5,15 +5,6 @@
         <router-view></router-view>
       </keep-alive>
     </Layout>
-    <!-- <el-button type="primary" @click="$ipc.send('sui-quest2')"
-      >点击开始Sui-Quest2</el-button
-    >
-    <el-button type="primary" @click="$ipc.send('export-wallet')"
-      >点击开始导出钱包数据</el-button
-    >
-    <el-button type="primary" @click="$ipc.send('send-to-child')"
-      >子账户分币</el-button
-    > -->
   </div>
 </template>
 <script>

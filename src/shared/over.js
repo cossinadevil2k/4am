@@ -11,7 +11,7 @@ export const OVER_STATUS_CONST = {
 }
 export const OVER_STATUS_TEXT = {
   [UNFINISHED]: "未完成",
-  [UNCLAIM]: "未领分",
-  [UNQUIZE]: "未答题",
+  [UNCLAIM]: "可领分",
+  [UNQUIZE]: "可答题",
   [FINISHIED]: "已领完",
 }

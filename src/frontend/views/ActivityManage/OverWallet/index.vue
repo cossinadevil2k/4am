@@ -7,7 +7,7 @@
     <el-table v-loading="loading" :data="tableData" style="width: 100%" height="100%" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55"></el-table-column>
       <el-table-column prop="email" label="邮箱" min-width="240"> </el-table-column>
-      <el-table-column prop="name" label="名称" min-width="100"> </el-table-column>
+      <el-table-column prop="over_name" label="名称" min-width="100"> </el-table-column>
       <el-table-column prop="status" label="状态" min-width="100">
         <template #default="{ row }">
           <span>{{ OVER_STATUS_TEXT[row.status] }}</span>
@@ -130,8 +130,17 @@ export default {
     },
     async getDailyReward(row) {
       console.log("getDailyReward", row)
-      await dailyReward(row.email)
-      this.getList()
+      this.$prompt("请输入答案关键词", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+      }).then(async ({ value: answer }) => {
+        const res = await dailyReward(row.email, answer)
+        this.$message.info(`
+            领分${res.data.claim_success ? "成功(" + claim_reward + ")" : "失败"}
+            答题${res.data.quiz_success ? "成功(" + quiz_reward + ")" : "失败"}
+          `)
+        this.getList()
+      })
     },
     async getDailyQuiz(row) {
       console.log("getDailyQuiz", row)

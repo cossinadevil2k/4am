@@ -167,6 +167,5 @@ const getCookies = (res) => {
 }
 
 const getAuthorization = (token) => {
-  console.log(token)
   return `Bearer ${token}`
 }
