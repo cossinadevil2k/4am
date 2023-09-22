@@ -13,5 +13,6 @@ router.get("/email/count", emailController.getCount)
 router.get("/email/token/:email", emailController.getToken)
 router.get("/email/check/:id", emailController.check)
 router.get("/email/mails/:id", emailController.getMails)
+router.get("/email/openApikeyDir", emailController.openApikeyDir)
 
 export default router

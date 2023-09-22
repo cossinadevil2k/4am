@@ -101,7 +101,7 @@ export function refresh(cookie, data) {
     },
     method: "post",
     url: "/auth/refresh",
-    data
+    data,
   })
 }
 //查分
@@ -158,6 +158,73 @@ export function quizSubmit(cookie, token, id, data) {
     method: "post",
     url: `/mission/3/quiz/${id}/submit`,
     data,
+  })
+}
+//校验用户名
+export function checkUsername(cookie, token, name) {
+  return http({
+    headers: {
+      cookie,
+      authorization: getAuthorization(token),
+    },
+    method: "get",
+    url: `/user/name/${name}`,
+  })
+}
+//提交用户名
+export function setUsername(cookie, token, name) {
+  return http({
+    headers: {
+      cookie,
+      authorization: getAuthorization(token),
+    },
+    method: "post",
+    url: `/user/name/${name}`,
+  })
+}
+//校验邀请码
+export function checkInviteCode(cookie, token, invite_code) {
+  return http({
+    headers: {
+      cookie,
+      authorization: getAuthorization(token),
+    },
+    method: "get",
+    url: `/user/invite_code/${invite_code}`,
+  })
+}
+//提交邀请码
+export function setInviteCode(cookie, token, invite_code) {
+  return http({
+    headers: {
+      cookie,
+      authorization: getAuthorization(token),
+    },
+    method: "post",
+    url: `/user/invite_code/${invite_code}`,
+  })
+}
+//获取邀请奖励
+export function claimInvite(cookie, token) {
+  return http({
+    headers: {
+      cookie,
+      authorization: getAuthorization(token),
+    },
+    method: "post",
+    url: `/user/claim/invite`,
+  })
+}
+//获取初次注册的1000分
+export function claimFirstTimePoint(cookie, token) {
+  return http({
+    headers: {
+      cookie,
+      authorization: getAuthorization(token),
+    },
+    method: "post",
+    url: `/event/1/click`,
+    data: {}
   })
 }
 

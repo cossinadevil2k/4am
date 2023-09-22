@@ -65,3 +65,9 @@ export function mails(id) {
     method: "get",
   })
 }
+export function openApikeyDir() {
+  return http({
+    url: `/email/openApikeyDir`,
+    method: "get",
+  })
+}

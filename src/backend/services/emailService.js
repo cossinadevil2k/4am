@@ -2,6 +2,10 @@ import db from "@/utils/db"
 import { EMAIL_STATUS_CONST } from "SHARE/email"
 import dayjs from "dayjs"
 import Mail from "@/utils/mail"
+import { app } from "electron"
+import path from "path"
+import { scriptLog } from '@/utils/log'
+const { exec } = require('child_process');
 
 export const addEmail = async (name, email, remark) => {
   const res = await db.email.findOne({ email })
@@ -100,7 +104,7 @@ export const check = async (id) => {
 export const checkMailStatus = async (email) => {
   const mail = new Mail(email)
   const { credentialsExist, tokenExist } = await mail.checkCredentialsAndTokenExist()
-  console.log({ credentialsExist, tokenExist })
+  scriptLog({ credentialsExist, tokenExist })
   return tokenExist ? EMAIL_STATUS_CONST.TOKEN : credentialsExist ? EMAIL_STATUS_CONST.CREDENTIALS : EMAIL_STATUS_CONST.CREATED
 }
 
@@ -126,4 +130,13 @@ export const getMails = async (id) => {
   const mail = new Mail(email.email, proxy)
   const mails = await mail.getMails({ maxResults: 10 })
   return mails
+}
+
+export const openApikeyDir = async () => {
+  const folderPath = path.join(app.getPath("userData"), "PersistentData/gmail/credential")
+  exec(`start ${folderPath}`, (err) => {
+    if (err) {
+      console.error(`无法打开文件夹: ${err}`);
+    }
+  });
 }

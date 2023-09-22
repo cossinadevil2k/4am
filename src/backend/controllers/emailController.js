@@ -90,3 +90,12 @@ export const check = async (req, res) => {
     res.json({ code: responseCodes.INTERNAL_SERVER_ERROR, message: error.message, data: null })
   }
 }
+export const openApikeyDir = async (req, res) => {
+  try {
+    const dir = await emailService.openApikeyDir()
+    res.json({ code: responseCodes.SUCCESS, message: "successfully", data: dir })
+  } catch (error) {
+    console.log(error)
+    res.json({ code: responseCodes.INTERNAL_SERVER_ERROR, message: error.message, data: null })
+  }
+}

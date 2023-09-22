@@ -6,7 +6,7 @@ import { google } from "googleapis"
 import { authenticate } from "@/modules/@google-cloud/local-auth"
 import { app } from "electron"
 import atob from "atob"
-
+import { scriptLog } from "./log"
 const userDataPath = app.getPath("userData")
 
 export default class GmailService {
@@ -19,7 +19,6 @@ export default class GmailService {
     this.access_token = ""
     this.expires_at = ""
     this.proxyOptions = proxy
-    console.log(this.TOKEN_PATH, this.CREDENTIALS_PATH)
   }
 
   async withTimeout(promise) {
@@ -34,7 +33,7 @@ export default class GmailService {
       this.expires_at = credentials.expires_at
       return google.auth.fromJSON(credentials)
     } catch (err) {
-      console.log(err)
+      scriptLog(err)
       return null
     }
   }
@@ -58,14 +57,13 @@ export default class GmailService {
 
   async authorize() {
     let client = await this.loadSavedCredentialsIfExist()
-    console.log(this.access_token)
-    console.log(this.expires_at)
+    scriptLog(this.access_token)
+    scriptLog(this.expires_at)
     if (client) {
       if (this.isTokenExpired()) {
-        console.log("token过期或不存在,刷新token")
+        scriptLog("token过期或不存在,刷新token")
         // 只有当access_token不存在或已过期时，才刷新它
         await client.refreshAccessToken()
-        console.log(client)
         await this.saveCredentials(client) // 如果刷新了 token，则保存它
       }
       return client
@@ -89,10 +87,10 @@ export default class GmailService {
       headers: { Authorization: `Bearer ${accessToken}` },
     })
     if (this.proxyOptions) {
-      console.log("使用代理：", this.proxyOptions)
+      scriptLog("使用代理：", this.proxyOptions)
       http.defaults.httpsAgent = new SocksProxyAgent(this.proxyOptions)
       http.interceptors.response.use((response) => {
-        console.log("Response received from proxy:", response.config.httpsAgent.proxy)
+        scriptLog("Response received from proxy:", response.config.httpsAgent.proxy)
         return response
       })
     }
@@ -104,7 +102,7 @@ export default class GmailService {
     const accessToken = this.access_token
     const axiosInstance = this.createAxiosInstance(accessToken)
 
-    console.log("获取邮件列表")
+    scriptLog("获取邮件列表")
     const res = await this.withTimeout(
       axiosInstance.get("messages", {
         params: {
@@ -113,15 +111,15 @@ export default class GmailService {
         },
       })
     )
-    console.log("获取邮件列表成功")
+    scriptLog("获取邮件列表成功")
 
     const messages = res.data.messages || []
     const result = []
 
     for (const message of messages) {
-      console.log("获取邮件详情")
+      scriptLog("获取邮件详情")
       const messageInfo = await this.withTimeout(axiosInstance.get(`messages/${message.id}`))
-      console.log("格式化邮件内容")
+      scriptLog("格式化邮件内容")
       const details = this.mailParser(messageInfo, decode)
       result.push({
         id: message.id,

@@ -49,6 +49,16 @@ module.exports = {
         //   .use("babel-loader")
         //   .loader("babel-loader")
       },
+      builderOptions: {
+        appId: "com.4am.bot",
+        win: {
+          target: "nsis",
+        },
+        nsis: {
+          oneClick: false,
+          allowToChangeInstallationDirectory: true,
+        },
+      },
     },
   },
   devServer: {

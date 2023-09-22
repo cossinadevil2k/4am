@@ -1,6 +1,6 @@
 import { getCurrentWindow } from "./index";
 
-export function scriptLog(log) {
+export function scriptLog() {
   const win = getCurrentWindow();
-  win.webContents.send("script-log", log);
+  win.webContents.send("script-log", { ...arguments});
 }

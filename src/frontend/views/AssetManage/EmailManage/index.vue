@@ -1,6 +1,7 @@
 <template>
   <PageCard>
     <el-row slot="header-right">
+      <el-button type="primary" size="mini" @click="openApikeyDir">打开apikey文件夹</el-button>
       <el-button type="primary" size="mini" @click="getList" title="刷新列表">查询</el-button>
       <el-button type="primary" size="mini" @click="openAccountDialog" title="新增账号">新增</el-button>
       <el-button type="primary" size="mini" @click="() => $refs.addMultiDialog.open()" title="批量新增">批量新增</el-button>
@@ -54,7 +55,7 @@
 import { mapState } from "vuex"
 import AddDialog from "./Dialog/addDialog.vue"
 import AddMultiDialog from "./Dialog/addMultiDialog.vue"
-import { list, remove, token, check } from "@/api/email"
+import { list, remove, token, check, openApikeyDir } from "@/api/email"
 import { EMAIL_STATUS_TEXT, EMAIL_STATUS_CONST } from "SHARE/email"
 export default {
   components: { AddDialog, AddMultiDialog },
@@ -90,6 +91,10 @@ export default {
       this.tableData = res.data.list
       console.log(this.pageInfo, res)
       this.pageInfo.total = res.data.pageInfo.total
+    },
+    async openApikeyDir(){
+      const res = await openApikeyDir()
+
     },
     async check(row) {
       const res = await check(row.id)

@@ -21,8 +21,8 @@
       <el-table-column prop="created_at" label="创建时间" min-width="140"></el-table-column>
       <el-table-column prop="operate" label="操作" min-width="180">
         <template #default="{ row }">
-          <el-button type="text" size="mini" @click="getDailyReward(row)">运行</el-button>
-          <el-button type="text" size="mini" @click="getDailyQuiz(row)">获取问题和答案</el-button>
+          <el-button :loading="row.loading" type="text" size="mini" @click="getDailyReward(row)">运行</el-button>
+          <!-- <el-button type="text" size="mini" @click="getDailyQuiz(row)">获取问题和答案</el-button> -->
           <el-button type="text" size="mini" @click="openAccountDialog(row)">编辑</el-button>
           <el-button type="text" size="mini" @click="removeAccount(row)">删除</el-button>
         </template>
@@ -79,7 +79,7 @@ export default {
       const res = await list({ currentPage, pageSize }).finally(() => {
         this.loading = false
       })
-      this.tableData = res.data.list
+      this.tableData = res.data.list.map((v) => ({ ...v, loading: false }))
       console.log(this.pageInfo, res)
       this.pageInfo.total = res.data.pageInfo.total
     },
@@ -134,10 +134,13 @@ export default {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
       }).then(async ({ value: answer }) => {
-        const res = await dailyReward(row.email, answer)
+        row.loading = true
+        const res = await dailyReward(row.email, answer).finally(() =>  {
+          row.loading = false
+        })
         this.$message.info(`
-            领分${res.data.claim_success ? "成功(" + claim_reward + ")" : "失败"}
-            答题${res.data.quiz_success ? "成功(" + quiz_reward + ")" : "失败"}
+            领分${res.data.claim_success ? "成功(" + res.data.claim_reward + ")" : "失败"}
+            答题${res.data.quiz_success ? "成功(" + res.data.quiz_reward + ")" : "失败"}
           `)
         this.getList()
       })

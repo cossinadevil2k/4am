@@ -5,7 +5,7 @@ import Mail from "@/utils/mail"
 import dayjs from "dayjs"
 import * as overApi from "@/api/over"
 import { sleep } from "@/utils"
-
+import { scriptLog } from "@/utils/log"
 export const addAccount = async (name, email, remark) => {
   const res = await db.over.findOne({ email })
   if (res) {
@@ -89,9 +89,9 @@ export const getEmails = async () => {
     ...unboundEmails,
     {
       created_at: "2023-09-15 02:14:33",
-      email: "QOsVh308@maildrop.cc",
-      id: "M1aSFxkH4zsCvERN",
-      name: "邮箱 7",
+      email: "saygoodylss@maildrop.cc",
+      id: "M1aSFxkH4ccccz23",
+      name: "邮箱 8",
       remark: "",
       updated_at: "2023-09-15 02:14:33",
     },
@@ -100,11 +100,11 @@ export const getEmails = async () => {
 
 export const getDailyQuiz = async (email) => {
   const { tokens, cookie } = await getToken(email) // 获取 token
-  console.log("获取任务信息")
+  scriptLog("获取任务信息")
   const { res, cookie: cookie7 } = await overApi.missionInfo(cookie, tokens.access_token)
-  console.log(res.data)
+  scriptLog(res.data)
   const { quiz_id } = res.data
-  console.log("获取问题")
+  scriptLog("获取问题")
   const { res: quiz } = await overApi.quizStart(cookie7, tokens.access_token, quiz_id)
   return { question: quiz.data.question, choices: quiz.data.choices }
 }
@@ -114,10 +114,10 @@ export const getDailyReward = async (email, answer) => {
   let response = {}
   const { tokens, cookie: cookie5 } = await getToken(email) // 获取 token
   cookie = cookie5
-  console.log("领分")
+  scriptLog("领分")
   const { res: claim, cookie: cookie6 } = await overApi.claim(cookie, tokens.access_token)
   cookie = cookie6
-  console.log(claim)
+  scriptLog(claim)
   let updateInfo = {}
   if (claim.data && claim.data.is_completed) {
     updateInfo = {
@@ -135,29 +135,24 @@ export const getDailyReward = async (email, answer) => {
     response.claim_success = false
   }
   await _updateAccount(email, updateInfo)
-  if (answer) {
-    const { is_success, quiz_reward } = await completeQuestion(email, cookie, tokens.access_token, answer) // 完成问卷
-    response.quiz_success = is_success
-    response.quiz_reward = quiz_reward
-  }
-  console.log("开始查分")
+  const { is_success, quiz_reward } = await completeQuestion(email, cookie, tokens.access_token, answer) // 完成问卷
+  response.quiz_success = is_success
+  response.quiz_reward = quiz_reward
+  scriptLog("开始查分")
   const { res: point } = await overApi.getPoint(cookie, tokens.access_token) // 获取积分
-  console.log(point)
+  scriptLog(point)
   await _updateAccount(email, {
     point: point.data.point,
     previous_point: point.data.previous_point,
   })
 
   return response
-  // if (!mailState.is_signup) {
-  //   // 未注册
-  // }
 }
 
 const getOverEmail = async (email) => {
   const mail = new Mail(email)
   const data = await mail.getMails({ q: "from:hello@over.network is:unread", orderBy: "internalDate", maxResults: 1 }, true)
-  console.log(data.length)
+  scriptLog(data.length)
   if (!data || !data.length) {
     return
   }
@@ -167,7 +162,7 @@ const getOverEmail = async (email) => {
   const match = htmlStr.match(regex)
   if (match) {
     const url = match[1]
-    console.log(`URL: ${url}`)
+    scriptLog(`URL: ${url}`)
     const text = await fetch(url).then((res) => res.text())
     await sleep(1000)
     return text
@@ -181,10 +176,12 @@ const getMailStatus = async (cookie, verifier, email, elapsedTime = 0) => {
   if (elapsedTime >= timeout) {
     throw new Error("Operation timed out after 2 minutes")
   }
-  await getOverEmail(email)
-  console.log("获取验证状态")
+  if(email.includes('@gmail.com')){
+    await getOverEmail(email)
+  }
+  scriptLog("获取验证状态")
   const { res, cookie: cookie4 } = await overApi.getMailStatus(cookie, { verifier })
-  console.log(res.data)
+  scriptLog(res.data)
   if (!res.data) {
     await sleep(5000) // 等待5秒
     return await getMailStatus(cookie4, verifier, email, elapsedTime + 5000) // 增加已经过去的时间
@@ -193,9 +190,9 @@ const getMailStatus = async (cookie, verifier, email, elapsedTime = 0) => {
 }
 
 const completeQuestion = async (email, cookie, token, answer) => {
-  console.log("获取任务信息")
+  scriptLog("获取任务信息")
   const { res, cookie: cookie7 } = await overApi.missionInfo(cookie, token)
-  console.log(res.data)
+  scriptLog(res.data)
   const { quiz_status, quiz_id } = res.data
   let updateInfo = {
     can_solve: false,
@@ -204,59 +201,59 @@ const completeQuestion = async (email, cookie, token, answer) => {
   let response = {
     is_success: false,
   }
-  if (quiz_status === "can_solve") {
-    console.log("获取问题")
+  if (quiz_status === "can_solve" && answer) {
+    scriptLog("获取问题")
     const { res: quiz, cookie: cookie8 } = await overApi.quizStart(cookie7, token, quiz_id)
-    console.log(quiz.data)
-    console.log("提交答案")
+    scriptLog(quiz.data)
+    scriptLog("提交答案")
     const answerIdx = quiz.data.choices.findIndex((v) => v.toLowerCase().includes(answer.toLowerCase())) + 1
-    console.log(answerIdx)
+    scriptLog(answerIdx)
     if (answerIdx === 0) {
-      console.log("未找到对应答案")
+      scriptLog("未找到对应答案")
       return { question: quiz.data.question, choices: quiz.data.choices }
     }
     const { res: submitRes, cookie: cookie9 } = await overApi.quizSubmit(cookie8, token, quiz_id, {
       answer_list: [answerIdx],
     })
     if (submitRes.data.quiz_status === "failed") {
-      updateInfo = { can_solve: false }
+      updateInfo.can_solve = false
       response = { is_success: false }
     }
     if (submitRes.data.quiz_status === "can_solve") {
-      updateInfo = { can_solve: true }
+      updateInfo.can_solve = true
       response = { is_success: false }
     }
     if (submitRes.data.quiz_status === "solved") {
-      updateInfo = { can_solve: false }
+      updateInfo.can_solve = false
       response = { is_success: true, quiz_reward: submitRes.data.reward }
     }
-    console.log(submitRes)
+    scriptLog(submitRes)
   }
   await _updateAccount(email, updateInfo)
   return response
 }
 
 const getToken = async (email) => {
-  console.log("执行登录逻辑")
+  scriptLog("执行登录逻辑")
   const account = await db.over.findOne({ email })
   if (!account) {
     throw new Error("Email not exist")
   }
-  console.log(account)
+  scriptLog(account)
   const { cookie: cookie1 } = await overApi.getVersion()
   let tokens = { access_token: account.access_token, refresh_token: account.refresh_token }
   let cookie = cookie1
   if (!account.access_token) {
-    console.log("获取邮件注册状态")
+    scriptLog("获取邮件注册状态")
     const { res: mailState, cookie: cookie2 } = await overApi.checkMail(cookie1, { email })
-    console.log(mailState)
-    console.log("获取验证邮件")
+    scriptLog(mailState)
+    scriptLog("获取验证邮件")
     const { res, cookie: cookie3 } = await overApi.getMail(cookie2, { email })
     const verifier = res.data.verifier
-    console.log(res)
-    console.log("开始轮询等待邮件点击")
+    scriptLog(res)
+    scriptLog("开始轮询等待邮件点击")
     const { res: _tokens, cookie: cookie5 } = await getMailStatus(cookie3, verifier, email)
-    console.log(_tokens)
+    scriptLog(_tokens)
     // 更新操作：设置 token 字段
     await _updateAccount(email, {
       access_token: _tokens.access_token,
@@ -266,19 +263,10 @@ const getToken = async (email) => {
     cookie = cookie5
   }
   try {
-    console.log("登录获取用户信息")
-    const { res: userInfo } = await overApi.signin(cookie, tokens.access_token)
-    // 更新操作：更新用户信息
-    await _updateAccount(email, {
-      my_invite_code: userInfo.data.my_invite_code,
-      over_name: userInfo.data.name,
-      timezone: userInfo.data.timezone,
-    })
-    console.log(userInfo)
+    await registryOrLogin(email, cookie, tokens.access_token)
   } catch (error) {
-    console.log(error)
     if (error.response.status === 401) {
-      console.log("token失效,刷新token")
+      scriptLog("token失效,刷新token")
       //token失效,刷新token
       const {
         res: {
@@ -288,12 +276,15 @@ const getToken = async (email) => {
         access_token: tokens.access_token,
         refresh_token: tokens.refresh_token,
       })
-      console.log(access_token)
+      scriptLog(access_token)
       // 更新操作：设置 token 字段
       await _updateAccount(email, {
         access_token,
       })
       tokens.access_token = access_token
+      await registryOrLogin(email, cookie, tokens.access_token)
+    } else {
+      throw error
     }
   }
 
@@ -333,7 +324,7 @@ export const getSetting = async () => {
     const defaultSetting = {
       type: "over",
       setting: {
-        invite_code: ""
+        invite_code: "",
         /* 默认设置内容 */
       },
     }
@@ -342,4 +333,62 @@ export const getSetting = async () => {
   }
 
   return setting?.setting
+}
+const registryOrLogin = async (email, cookie, token) => {
+  scriptLog("登录获取用户信息")
+  const { res: userInfo } = await overApi.signin(cookie, token)
+  // 更新操作：更新用户信息
+  await _updateAccount(email, {
+    invite_code: userInfo.data.invite_code,
+    my_invite_code: userInfo.data.my_invite_code,
+    over_name: userInfo.data.name,
+    timezone: userInfo.data.timezone,
+  })
+  scriptLog(userInfo)
+  if (!userInfo.data.name) {
+    scriptLog("用户名不存在,开始注册")
+    const name = getRandomName()
+    const { res } = await overApi.checkUsername(cookie, token, name)
+    if (res.code !== 0) {
+      scriptLog("用户名已存在或不合法", name)
+      await sleep(1000)
+      return await registryOrLogin(email, cookie, token)
+    }
+    const { res: setRes } = await overApi.setUsername(cookie, token, name)
+    scriptLog("设置用户名成功", name)
+    scriptLog(setRes)
+    await sleep(1000)
+    return await registryOrLogin(email, cookie, token)
+  }
+  if (!userInfo.data.invite_code && !userInfo.data.is_landing) {
+    scriptLog("开始填写邀请码")
+    const { invite_code } = await getSetting()
+    if (!invite_code) throw new Error("邀请码不存在,请设置邀请码")
+    const { res: checkRes } = await overApi.checkInviteCode(cookie, token, invite_code)
+    if (checkRes.code !== 0) {
+      throw new Error("邀请码校验失败")
+    }
+    scriptLog("提交邀请码", invite_code)
+    await overApi.setInviteCode(cookie, token, invite_code)
+    await sleep(1000)
+    return await registryOrLogin(email, cookie, token)
+  }
+  if (userInfo.data.need_claim_invite) {
+    scriptLog("获取邀请奖励")
+    await overApi.claimInvite(cookie, token)
+    await sleep(1000)
+    scriptLog("获取注册初始分")
+    await overApi.claimFirstTimePoint(cookie, token)
+    await sleep(1000)
+    return await registryOrLogin(email, cookie, token)
+  }
+  return
+}
+const getRandomName = () => {
+  var chars = "aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ12345678900123456789"
+  var string = ""
+  for (var ii = 0; ii < 8; ii++) {
+    string += chars[Math.floor(Math.random() * chars.length)]
+  }
+  return string
 }
