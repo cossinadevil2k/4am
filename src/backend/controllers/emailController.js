@@ -36,7 +36,7 @@ export const getEmail = async (req, res) => {
 }
 
 export const updateEmail = async (req, res) => {
-  const { id, ...rest } = req.body
+  const { id, created_at, ...rest } = req.body
   await emailService.updateEmail(id, rest)
   res.json({ code: responseCodes.SUCCESS, message: "Email updated successfully", data: null })
 }

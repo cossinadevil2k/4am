@@ -26,7 +26,7 @@
       <el-table-column prop="operate" label="操作" min-width="180">
         <template #default="{ row }">
           <el-button v-if="EMAIL_STATUS_CONST.CREATED === row.status" type="text" size="mini" @click="check(row)">检测apikey</el-button>
-          <el-button v-if="EMAIL_STATUS_CONST.CREDENTIALS === row.status" type="text" size="mini" @click="getToken(row)">获取token</el-button>
+          <el-button :loading="row.loading" v-if="EMAIL_STATUS_CONST.CREDENTIALS === row.status" type="text" size="mini" @click="getToken(row)">获取token</el-button>
           <el-button v-if="EMAIL_STATUS_CONST.TOKEN === row.status" type="text" size="mini" @click="$router.push({ name: 'AssetManage_EmailManage_MailList', query: { email: row.email, id: row.id } })"
             >管理邮件</el-button
           >
@@ -88,20 +88,22 @@ export default {
       const res = await list({ currentPage, pageSize }).finally(() => {
         this.loading = false
       })
-      this.tableData = res.data.list
+      this.tableData = res.data.list.map((v) => ({ ...v, loading: false }))
       console.log(this.pageInfo, res)
       this.pageInfo.total = res.data.pageInfo.total
     },
-    async openApikeyDir(){
+    async openApikeyDir() {
       const res = await openApikeyDir()
-
     },
     async check(row) {
       const res = await check(row.id)
       this.getList()
     },
     async getToken(row) {
-      const res = await token(row.email)
+      row.loading = true
+      await token(row.email).finally(() => {
+        row.loading = false
+      })
       this.getList()
     },
 

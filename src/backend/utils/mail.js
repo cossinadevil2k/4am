@@ -10,7 +10,7 @@ import { scriptLog } from "./log"
 const userDataPath = app.getPath("userData")
 
 export default class GmailService {
-  constructor(email, proxy = null, timeout = 5000) {
+  constructor(email, proxy = null, timeout = 15000) {
     this.email = email
     this.timeout = timeout
     this.SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"]
@@ -85,6 +85,7 @@ export default class GmailService {
       baseURL: "https://www.googleapis.com/gmail/v1/users/me/",
       timeout: this.timeout,
       headers: { Authorization: `Bearer ${accessToken}` },
+      maxContentLength: 10 * 1024 * 1024
     })
     if (this.proxyOptions) {
       scriptLog("使用代理：", this.proxyOptions)

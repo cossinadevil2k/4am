@@ -1,4 +1,4 @@
-import db from "@/utils/db"
+import db from "@/db"
 import { EMAIL_STATUS_CONST } from "SHARE/email"
 import dayjs from "dayjs"
 import Mail from "@/utils/mail"
@@ -60,7 +60,7 @@ export const getEmailById = async (id) => {
 }
 
 export const updateEmail = async (id, rest) => {
-  const updatedEmail = { ...rest, updated_at: new Date() }
+  const updatedEmail = { ...rest, updated_at: new Date().getTime() }
   await db.email.update({ _id: id }, { $set: updatedEmail })
 }
 
@@ -69,14 +69,14 @@ export const deleteEmails = async (ids) => {
   return result
 }
 
-export const getEmails = async ({ currentPage = 1, pageSize = 20, query = {}, sort = { created_at: 1 } }) => {
+export const getEmails = async ({ currentPage = 1, pageSize = 20, query = {}}) => {
   const list = await db.email
     .find(query)
-    .sort(sort)
+    .sort({ created_at: 1, name: 1 })
     .skip((currentPage - 1) * pageSize)
     .limit(pageSize)
     .exec()
-
+  console.log(list)
   const formattedList = list.map((item) => {
     const { _id, created_at, updated_at, ...rest } = item
     return {

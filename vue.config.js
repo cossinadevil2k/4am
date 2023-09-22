@@ -53,6 +53,7 @@ module.exports = {
         appId: "com.4am.bot",
         win: {
           target: "nsis",
+          icon: './public/icon.ico'
         },
         nsis: {
           oneClick: false,

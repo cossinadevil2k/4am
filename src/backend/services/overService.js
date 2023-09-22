@@ -1,4 +1,4 @@
-import db from "@/utils/db"
+import db from "@/db"
 import { OVER_STATUS_CONST } from "SHARE/over"
 import { EMAIL_STATUS_CONST } from "SHARE/email"
 import Mail from "@/utils/mail"
@@ -85,17 +85,7 @@ export const getEmails = async () => {
   //去重,找到未绑定的邮箱
   // 去重，找到未绑定的邮箱
   const unboundEmails = allEmails.filter((emails) => !boundEmails.includes(emails.email))
-  return [
-    ...unboundEmails,
-    {
-      created_at: "2023-09-15 02:14:33",
-      email: "saygoodylss@maildrop.cc",
-      id: "M1aSFxkH4ccccz23",
-      name: "邮箱 8",
-      remark: "",
-      updated_at: "2023-09-15 02:14:33",
-    },
-  ]
+  return [...unboundEmails]
 }
 
 export const getDailyQuiz = async (email) => {
@@ -176,7 +166,7 @@ const getMailStatus = async (cookie, verifier, email, elapsedTime = 0) => {
   if (elapsedTime >= timeout) {
     throw new Error("Operation timed out after 2 minutes")
   }
-  if(email.includes('@gmail.com')){
+  if (email.includes("@gmail.com")) {
     await getOverEmail(email)
   }
   scriptLog("获取验证状态")
