@@ -7,7 +7,7 @@
     <el-table v-loading="loading" :data="tableData" style="width: 100%" height="100%" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55"></el-table-column>
       <el-table-column prop="email" label="邮箱" min-width="240"> </el-table-column>
-      <el-table-column prop="over_name" label="名称" min-width="100"> </el-table-column>
+      <el-table-column prop="over_name" label="名称" min-width="140"> </el-table-column>
       <el-table-column prop="my_invite_code" label="邀请码" min-width="120"> </el-table-column>
       <el-table-column prop="status" label="状态" min-width="100">
         <template #default="{ row }">
@@ -19,6 +19,13 @@
           <span>{{ row.point }}/</span>
           <span style="color: #ccc">{{ `${row.previous_point}` }}</span>
           <span style="color: red">{{ `(${row.point - row.previous_point})` }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column prop="rank" label="排名" min-width="140">
+        <template #default="{ row }">
+          <span :title="`${row.rank}/${row.user_count}/${(row.rank / row.user_count * 100).toFixed(3)}%`">{{
+            `${parseInt(row.rank / 10000)}万/${parseInt(row.user_count / 10000)}万/${parseInt((row.rank / row.user_count) * 100)}%`
+          }}</span>
         </template>
       </el-table-column>
       <el-table-column prop="last_claim_at" label="领分时间" min-width="120"> </el-table-column>

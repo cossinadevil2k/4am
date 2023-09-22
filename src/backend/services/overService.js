@@ -131,9 +131,14 @@ export const getDailyReward = async (email, answer) => {
   scriptLog("开始查分")
   const { res: point } = await overApi.getPoint(cookie, tokens.access_token) // 获取积分
   scriptLog(point)
+  scriptLog("查排名")
+  const { res: rankRes } = await overApi.getRank(cookie, tokens.access_token)
+  scriptLog(rankRes.data)
   await _updateAccount(email, {
     point: point.data.point,
     previous_point: point.data.previous_point,
+    rank: rankRes.data.rank,
+    user_count: rankRes.data.user_count
   })
 
   return response

@@ -115,6 +115,17 @@ export function getPoint(cookie, token) {
     url: "/user",
   })
 }
+//查排名
+export function getRank(cookie, token) {
+  return http({
+    headers: {
+      cookie,
+      authorization: getAuthorization(token),
+    },
+    method: "get",
+    url: "/reward",
+  })
+}
 //领分
 export function claim(cookie, token) {
   return http({
