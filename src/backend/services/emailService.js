@@ -76,7 +76,6 @@ export const getEmails = async ({ currentPage = 1, pageSize = 20, query = {}}) =
     .skip((currentPage - 1) * pageSize)
     .limit(pageSize)
     .exec()
-  console.log(list)
   const formattedList = list.map((item) => {
     const { _id, created_at, updated_at, ...rest } = item
     return {

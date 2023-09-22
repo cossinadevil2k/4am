@@ -21,9 +21,9 @@ export default class GmailService {
     this.proxyOptions = proxy
   }
 
-  async withTimeout(promise) {
-    return Promise.race([promise, new Promise((_, reject) => setTimeout(() => reject(new Error("Request timed out")), this.timeout))])
-  }
+  // async withTimeout(promise) {
+  //   return Promise.race([promise, new Promise((_, reject) => setTimeout(() => reject(new Error("Request timed out")), this.timeout))])
+  // }
 
   async loadSavedCredentialsIfExist() {
     try {
@@ -85,7 +85,7 @@ export default class GmailService {
       baseURL: "https://www.googleapis.com/gmail/v1/users/me/",
       timeout: this.timeout,
       headers: { Authorization: `Bearer ${accessToken}` },
-      maxContentLength: 10 * 1024 * 1024
+      maxContentLength: 10 * 1024 * 1024,
     })
     if (this.proxyOptions) {
       scriptLog("使用代理：", this.proxyOptions)
@@ -104,14 +104,12 @@ export default class GmailService {
     const axiosInstance = this.createAxiosInstance(accessToken)
 
     scriptLog("获取邮件列表")
-    const res = await this.withTimeout(
-      axiosInstance.get("messages", {
-        params: {
-          maxResults: 10,
-          ...query,
-        },
-      })
-    )
+    const res = await axiosInstance.get("messages", {
+      params: {
+        maxResults: 10,
+        ...query,
+      },
+    })
     scriptLog("获取邮件列表成功")
 
     const messages = res.data.messages || []
@@ -119,7 +117,7 @@ export default class GmailService {
 
     for (const message of messages) {
       scriptLog("获取邮件详情")
-      const messageInfo = await this.withTimeout(axiosInstance.get(`messages/${message.id}`))
+      const messageInfo = await axiosInstance.get(`messages/${message.id}`)
       scriptLog("格式化邮件内容")
       const details = this.mailParser(messageInfo, decode)
       result.push({

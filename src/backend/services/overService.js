@@ -72,7 +72,7 @@ const formatStatus = ({ last_claim_at, last_quiz_at, can_solve = true }) => {
   }
   return OVER_STATUS_CONST.FINISHIED
 }
-const formatTime = (timeStmp, fmt = "YYYY-MM-DD HH:mm:ss") => {
+const formatTime = (timeStmp, fmt = "YY-MM-DD HH:mm:ss") => {
   if (!timeStmp) return ""
   return dayjs(timeStmp).format(fmt)
 }

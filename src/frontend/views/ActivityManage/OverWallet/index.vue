@@ -14,7 +14,13 @@
           <span>{{ OVER_STATUS_TEXT[row.status] }}</span>
         </template>
       </el-table-column>
-      <el-table-column prop="point" label="分数" min-width="100"> </el-table-column>
+      <el-table-column prop="point" label="分数/上次分数" min-width="140">
+        <template #default="{ row }">
+          <span>{{ row.point }}/</span>
+          <span style="color: #ccc">{{ `${row.previous_point}` }}</span>
+          <span style="color: red">{{ `(${row.point - row.previous_point})` }}</span>
+        </template>
+      </el-table-column>
       <el-table-column prop="last_claim_at" label="领分时间" min-width="120"> </el-table-column>
       <el-table-column prop="last_quiz_at" label="答题时间" min-width="120"> </el-table-column>
       <el-table-column prop="remark" label="备注" min-width="160"> </el-table-column>
@@ -135,7 +141,7 @@ export default {
         cancelButtonText: "取消",
       }).then(async ({ value: answer }) => {
         row.loading = true
-        const res = await dailyReward(row.email, answer).finally(() =>  {
+        const res = await dailyReward(row.email, answer).finally(() => {
           row.loading = false
         })
         this.$message.info(`
