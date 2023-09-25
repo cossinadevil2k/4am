@@ -61,7 +61,7 @@ export default {
       } else {
         const seq = await this.getNewSeq()
         // 在打开弹窗时接收默认名称和默认序号并填充到表单中
-        this.form.name = `账号 ${seq}`
+        this.form.name = `邮箱 ${seq}`
       }
       this.dialogVisible = true
     },

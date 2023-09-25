@@ -6,6 +6,7 @@ import ElementUi from "@/common/element-ui";
 import PageCard from "@/components/PageCard";
 import './plugins/datastore.js' 
 import { ipcRenderer } from "electron"
+// import '@/style/theme-dark.css'
 Vue.prototype.$ipc = ipcRenderer;
 Vue.config.productionTip = false;
 console.log(process.env, "rocess.env")

@@ -7,8 +7,9 @@
     <el-table v-loading="loading" :data="tableData" style="width: 100%" height="100%" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55"></el-table-column>
       <el-table-column prop="email" label="邮箱" min-width="240"> </el-table-column>
-      <el-table-column prop="over_name" label="名称" min-width="140"> </el-table-column>
-      <el-table-column prop="my_invite_code" label="邀请码" min-width="120"> </el-table-column>
+      <el-table-column prop="name" label="名称" min-width="100"> </el-table-column>
+      <el-table-column prop="over_name" label="over名称" min-width="140"> </el-table-column>
+      <!-- <el-table-column prop="my_invite_code" label="邀请码" min-width="120"> </el-table-column> -->
       <el-table-column prop="status" label="状态" min-width="100">
         <template #default="{ row }">
           <span>{{ OVER_STATUS_TEXT[row.status] }}</span>
@@ -23,7 +24,7 @@
       </el-table-column>
       <el-table-column prop="rank" label="排名" min-width="140">
         <template #default="{ row }">
-          <span :title="`${row.rank}/${row.user_count}/${(row.rank / row.user_count * 100).toFixed(3)}%`">{{
+          <span :title="`${row.rank}/${row.user_count}/${((row.rank / row.user_count) * 100).toFixed(3)}%`">{{
             `${parseInt(row.rank / 10000)}万/${parseInt(row.user_count / 10000)}万/${parseInt((row.rank / row.user_count) * 100)}%`
           }}</span>
         </template>
@@ -38,11 +39,15 @@
           <!-- <el-button type="text" size="mini" @click="getDailyQuiz(row)">获取问题和答案</el-button> -->
           <el-button type="text" size="mini" @click="openAccountDialog(row)">编辑</el-button>
           <el-button type="text" size="mini" @click="removeAccount(row)">删除</el-button>
+          <el-button type="text" size="mini" @click="$message.info(row.my_invite_code)">邀请码</el-button>
         </template>
       </el-table-column>
     </el-table>
     <AddDialog ref="addDialog" @success="getList"></AddDialog>
-    <el-button slot="footer-left" type="primary" @click="batchDelete" :disabled="!selectedEmails.length" size="small">批量删除</el-button>
+    <template slot="footer-left">
+      <el-button type="primary" :loading="batchRunLoading" @click="batchRun" :disabled="!selectedEmails.length" size="small">批量运行</el-button>
+      <el-button type="danger" @click="batchDelete" :disabled="!selectedEmails.length" size="small">批量删除</el-button>
+    </template>
     <el-pagination
       slot="footer-right"
       @size-change="handleSizeChange"
@@ -75,6 +80,7 @@ export default {
         total: 0,
       },
       loading: false,
+      batchRunLoading: false,
       OVER_STATUS_CONST,
       OVER_STATUS_TEXT,
     }
@@ -122,13 +128,37 @@ export default {
     },
     handleSelectionChange(selection) {
       // selection 是选中的行信息数组
-      this.selectedEmails = selection.map((row) => row.id) // 假设 id 是邮箱的唯一标识符
+      this.selectedEmails = selection // 假设 id 是邮箱的唯一标识符
     },
     async batchDelete() {
       console.log(this.selectedEmails)
       await this.$confirm("真批量删?")
       // 调用批量删除方法，传递选中的邮箱数组
-      this.removeAccountBatch(this.selectedEmails)
+      this.removeAccountBatch(this.selectedEmails.map((v) => v.id))
+    },
+    async batchRun() {
+      this.$prompt("请输入答案关键词", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+      }).then(async ({ value: answer }) => {
+        this.batchRunLoading = true
+        for (let v of this.selectedEmails) {
+          try {
+            v.loading = true
+            const res = await dailyReward(v.email, answer).finally(() => {
+              v.loading = false
+            })
+            this.$message.info(`
+            领分${res.data.claim_success ? "成功(" + res.data.claim_reward + ")" : "失败"}
+            答题${res.data.quiz_success ? "成功(" + res.data.quiz_reward + ")" : "失败"}
+          `)
+          } catch (error) {
+            this.$message.error(error)
+          }
+        }
+        this.batchRunLoading = false
+        this.getList()
+      })
     },
     // 新的批量删除方法，接收一个邮箱id数组
     async removeAccountBatch(ids) {

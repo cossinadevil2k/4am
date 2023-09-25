@@ -1,21 +1,10 @@
 <template>
-  <el-container style="height: 100%; border: 1px solid #eee">
+  <el-container style="height: 100%; border: 1px solid var(--bg-color-base)">
     <el-aside width="200px" style="background-color: rgb(238, 241, 246)">
-      <el-menu :default-openeds="['0']" router>
-        <el-submenu
-          v-for="(item, index) in menus"
-          :key="index"
-          :index="`${index}`"
-        >
-          <template slot="title"
-            ><i :class="item.icon"></i>{{ item.name }}</template
-          >
-          <el-menu-item
-            v-for="(submenu, subIndex) in item.children"
-            :key="`${index}-${subIndex}`"
-            :index="submenu.path"
-            >{{ submenu.name }}</el-menu-item
-          >
+      <el-menu router>
+        <el-submenu v-for="(item, index) in menus" :key="index" :index="`${index}`">
+          <template slot="title"><i :class="item.icon"></i>{{ item.name }}</template>
+          <el-menu-item v-for="(submenu, subIndex) in item.children" :key="`${index}-${subIndex}`" :index="submenu.path">{{ submenu.name }}</el-menu-item>
         </el-submenu>
       </el-menu>
     </el-aside>
@@ -80,9 +69,9 @@ export default {
           ],
         },
       ],
-    };
+    }
   },
-};
+}
 </script>
 <style lang="less">
 .el-header {
@@ -107,7 +96,7 @@ export default {
 <style lang="less" scoped>
 .page-view {
   padding: 20px;
-  background: #eee;
+  background: var(--bg-color-base);
   padding-bottom: 40px;
 }
 </style>

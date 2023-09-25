@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div id="app" :class="{ dark: $store.state.setting.darkMode }">
     <Layout>
       <keep-alive>
         <router-view></router-view>
@@ -8,19 +8,19 @@
   </div>
 </template>
 <script>
-import Layout from "@/components/Layout";
+import Layout from "@/components/Layout"
 export default {
   components: {
     Layout,
   },
   created() {
     this.$ipc.on("script-log", (event, message) => {
-      console.log(message, "message");
-      this.$store.commit("ADD_LOG", message);
-    });
+      console.log(message, "message")
+      this.$store.commit("ADD_LOG", message)
+    })
   },
   methods: {},
-};
+}
 </script>
 <style lang="less">
 #app {
@@ -39,5 +39,13 @@ body,
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+}
+html {
+  --bg-color: #ffffff;
+  --bg-color-base: #f0f0f0;
+  --color-text-primary: #303133;
+  --color-text-regular: #606266;
+  --color-text-secondary: #909399;
+  --color-text-placeholder: #c0c4cc;
 }
 </style>

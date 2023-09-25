@@ -53,12 +53,12 @@ export default {
   width: 100%;
   .m-content {
     height: 90%;
-    background-color: #fff;
+    background-color: var(--bg-color);
     padding: 20px;
   }
   .m-header,
   .m-footer {
-    background: #fff;
+    background: var(--bg-color);
     padding: 0 20px;
     height: 60px;
     display: flex;
@@ -67,8 +67,12 @@ export default {
 
     .back,
     h4 {
+      
       line-height: 40px;
       margin-right: 10px;
+    }
+    h4{
+      color: var(--color-text-primary)
     }
     .header-left{
       display: flex;

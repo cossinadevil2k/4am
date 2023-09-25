@@ -5,6 +5,7 @@ import emailRoute from "./routes/emailRoute"
 import overRoute from "./routes/overRoute"
 import fs from "fs"
 import path from "path"
+
 function server() {
   const app = express()
   const port = process.env.VUE_APP_BACKEND_PORT || 3333
@@ -27,6 +28,7 @@ function server() {
   // 错误处理
   app.use((error, req, res, next) => {
     const { status = 500, message = "Internal Server Error" } = error
+    console.log(message)
     res.status(status).json({ code: status, message, data: null })
   })
   app.use(scriptRoutes)

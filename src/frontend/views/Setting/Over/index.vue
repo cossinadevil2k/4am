@@ -4,6 +4,9 @@
       <el-form-item label="邀请码" prop="invite_code">
         <el-input placeholder="请输入邀请码" v-model="form.invite_code" size="small"></el-input>
       </el-form-item>
+      <el-form-item label="是否使用代理" prop="use_email_proxy">
+        <el-switch v-model="form.use_email_proxy"></el-switch>
+      </el-form-item>
     </el-form>
     <template #footer-right>
       <el-button type="primary" @click="submitForm('numberValidateForm')">提交</el-button>
@@ -47,5 +50,8 @@ export default {
 <style lang="less" scoped>
 .form {
   width: 500px;
+  ::v-deep .el-form-item__content {
+    text-align: left;
+  }
 }
 </style>

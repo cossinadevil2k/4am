@@ -1,12 +1,27 @@
-import Vue from "vue";
-import Vuex from "vuex";
-import dayjs from "dayjs";
-Vue.use(Vuex);
+import Vue from "vue"
+import Vuex from "vuex"
+import dayjs from "dayjs"
+import { local } from '@/utils/storage'
+Vue.use(Vuex)
+// 动态设置主题
+function setTheme(themeName) {
+  let linkElement = document.getElementById("dynamic-theme")
+  if (!linkElement) {
+    linkElement = document.createElement("link")
+    linkElement.setAttribute("rel", "stylesheet")
+    linkElement.setAttribute("id", "dynamic-theme")
+    document.head.appendChild(linkElement)
+  }
+  linkElement.setAttribute("href", `theme/${themeName}.css`)
+}
+const setting = local.get("setting") || {}
+
+window.addEventListener("load", () => {
+  setTheme(setting.darkMode ? "theme-dark" : "theme-light")
+})
 export default new Vuex.Store({
   state: {
-    setting: {
-      password: process.env.NODE_ENV === "development" ? "73782DoU." : "",
-    },
+    setting: setting || {},
     logs: [
       {
         log: "0x6ca2f5beb64749ea00c45aad7ac00a4f62e6ed32a5a0089f63230d20aceca5bc",
@@ -16,15 +31,17 @@ export default new Vuex.Store({
   },
   mutations: {
     UPDATE_SETTING(state, setting) {
-      state.setting = setting;
+      setTheme(setting.darkMode ? "theme-dark" : "theme-light")
+      state.setting = setting
+      local.set("setting", setting)
     },
     ADD_LOG(state, log) {
-      state.logs.push({ log, time: dayjs().format("YYYY-MM-DD HH:mm:ss") });
+      state.logs.push({ log, time: dayjs().format("YYYY-MM-DD HH:mm:ss") })
     },
     CLEAR_LOG(state) {
-      state.logs = [];
+      state.logs = []
     },
   },
   actions: {},
   modules: {},
-});
+})

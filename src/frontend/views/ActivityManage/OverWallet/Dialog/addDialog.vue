@@ -2,7 +2,7 @@
   <el-dialog :visible.sync="dialogVisible" title="填写信息" width="500px" @close="clearForm">
     <el-form :model="form" ref="form" :rules="rules" label-width="100px">
       <el-form-item label="邮箱" prop="email">
-        <el-select v-model="form.email" size="small" style="width: 100%" @change="handleChange">
+        <el-select v-model="form.email" :disabled="!!form.id" size="small" style="width: 100%" @change="handleChange">
           <el-option v-for="item in emails" :key="item.id" :value="item.email">{{ item.email }}</el-option>
         </el-select>
       </el-form-item>
@@ -44,9 +44,10 @@ export default {
   },
   methods: {
     async open(oldForm) {
-      if (oldForm._id) {
+      if (oldForm.id) {
         this.form = { ...oldForm }
       }
+      console.log(oldForm)
       this.getEmails()
       this.dialogVisible = true
     },

@@ -24,8 +24,8 @@ export const getAccount = async (req, res) => {
 }
 
 export const updateAccount = async (req, res) => {
-  const { id, name, email } = req.body
-  await overService.updateAccount(id, name, email)
+  const { id, remark, name } = req.body
+  await overService.updateAccount(id, remark, name)
   res.json({ code: responseCodes.SUCCESS, message: "Email updated successfully", data: null })
 }
 
