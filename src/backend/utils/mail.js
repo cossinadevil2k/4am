@@ -85,7 +85,7 @@ export default class GmailService {
       baseURL: "https://www.googleapis.com/gmail/v1/users/me/",
       timeout: this.timeout,
       headers: { Authorization: `Bearer ${accessToken}` },
-      maxContentLength: 10 * 1024 * 1024,
+      maxContentLength: 30 * 1024 * 1024,
     })
     if (this.proxyOptions) {
       scriptLog("使用代理：", this.proxyOptions)

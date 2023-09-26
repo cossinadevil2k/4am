@@ -24,7 +24,7 @@ export const bacthImportEmails = async (emails) => {
   }
   let count = await getEmailCount()
 
-  const insertPromises = emails.map(async (email) => {
+  const insertPromises = emails.map(async (email, index) => {
     // 检查是否已存在相同的email地址
     const res = await db.email.findOne({ email })
 
@@ -37,12 +37,12 @@ export const bacthImportEmails = async (emails) => {
     const status = await checkMailStatus(email)
     // 构建新的email对象
     const newEmail = {
-      name: `邮箱 ${++count}`,
+      name: `邮箱 ${count + index + 1}`,
       email,
       remark: "",
       status,
-      created_at: new Date().getTime() + count,
-      updated_at: new Date().getTime() + count,
+      created_at: new Date().getTime() + index * 100,
+      updated_at: new Date().getTime() + index * 100,
     }
 
     // 执行新增操作

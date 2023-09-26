@@ -167,7 +167,9 @@ const getOverEmail = async (email) => {
   if (match) {
     const url = match[1]
     scriptLog(`URL: ${url}`)
-    const text = await fetch(url).then((res) => res.text())
+    const text = await fetch(url).then((res) => res.text()).catch(err => {
+      console.log(err)
+    })
     await sleep(1000)
     return text
   }
@@ -181,7 +183,9 @@ const getMailStatus = async (overApi, verifier, email, elapsedTime = 0) => {
     throw new Error("Operation timed out after 2 minutes")
   }
   if (email.includes("@gmail.com")) {
-    await getOverEmail(email)
+    await getOverEmail(email).catch(err => {
+      console.log(err)
+    })
   }
   scriptLog("获取验证状态")
   const { res } = await overApi.getMailStatus({ verifier })
