@@ -7,6 +7,9 @@
       <el-form-item label="黑夜模式" prop="darkMode">
         <el-switch v-model="form.darkMode"> </el-switch>
       </el-form-item>
+      <el-form-item label="备份数据库">
+        <el-button @click="backupDb">点击备份</el-button>
+      </el-form-item>
     </el-form>
     <template #footer-right>
       <el-button type="primary" @click="submitForm('numberValidateForm')">提交</el-button>
@@ -15,6 +18,7 @@
   </PageCard>
 </template>
 <script>
+import { exportDatabase } from '@/api/system'
 export default {
   data() {
     return {
@@ -24,7 +28,7 @@ export default {
       },
     }
   },
-  created(){
+  created() {
     this.form = this.$store.state.setting
   },
   methods: {
@@ -41,6 +45,9 @@ export default {
     },
     resetForm(formName) {
       this.$refs[formName].resetFields()
+    },
+    backupDb() {
+      exportDatabase()
     },
   },
 }

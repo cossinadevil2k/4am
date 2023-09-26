@@ -3,6 +3,7 @@ import express from "express"
 import scriptRoutes from "./routes/scriptRoutes"
 import emailRoute from "./routes/emailRoute"
 import overRoute from "./routes/overRoute"
+import systemRoute from "./routes/systemRoute"
 import fs from "fs"
 import path from "path"
 
@@ -34,6 +35,7 @@ function server() {
   app.use(scriptRoutes)
   app.use(emailRoute)
   app.use(overRoute)
+  app.use(systemRoute)
   app.listen(port, () => {
     console.log(`Express server running on http://localhost:${port}`)
   })
