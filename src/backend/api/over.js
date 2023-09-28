@@ -41,7 +41,7 @@ export default class OverApi {
     this.proxy = this.proxy || proxy
     if (this.proxy) {
       scriptLog("使用代理：", this.proxy)
-      this.request.defaults.httpsAgent = new SocksProxyAgent(this.proxy)
+      this.request.defaults.httpsAgent = new SocksProxyAgent(`socks5://${this.proxy.userId}:${this.proxy.password}@${this.proxy.host}:${this.proxy.port}`)
       this.request.interceptors.response.use((response) => {
         console.log("Response received from proxy:", response.config.httpsAgent.proxy)
         return response

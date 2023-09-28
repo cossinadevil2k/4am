@@ -6,14 +6,22 @@ import installExtension, { VUEJS_DEVTOOLS } from "electron-devtools-installer"
 import setup from "./setup"
 import path from "path"
 import { initialize, enable } from "@electron/remote/main"
+// import { autoUpdater } from "electron-updater"
+
 initialize()
 const isDevelopment = process.env.NODE_ENV !== "production"
+// autoUpdater.logger = require("electron-log")
+// autoUpdater.logger.transports.file.level = "info"
 
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([{ scheme: "app", privileges: { secure: true, standard: true } }])
-const result = null ?? 'default';
-console.log('Result:', result); // 如果 Babel 生效，这里应该打印 "Result: default"
-
+const result = null ?? "default"
+console.log("Result:", result) // 如果 Babel 生效，这里应该打印 "Result: default"
+Object.defineProperty(app, "isPackaged", {
+  get() {
+    return true
+  },
+})
 async function createWindow() {
   // Create the browser window.
   const win = new BrowserWindow({
@@ -32,14 +40,24 @@ async function createWindow() {
   enable(win.webContents)
   win.maximize()
   //像渲染进程发送消息
+  // autoUpdater.setFeedURL({
+  //   provider: "github",
+  //   owner: "cardamon-dk",
+  //   repo: "4am",
+  //   private: true,
+  //   token: process.env.GH_TOKEN
+  // });
   if (process.env.WEBPACK_DEV_SERVER_URL) {
     // Load the url of the dev server if in development mode
+    console.log(process.env.GH_TOKEN)
     await win.loadURL(process.env.WEBPACK_DEV_SERVER_URL)
+    // autoUpdater.checkForUpdatesAndNotify()
     if (!process.env.IS_TEST) win.webContents.openDevTools()
   } else {
     createProtocol("app")
     // Load the index.html when not in development
     win.loadURL("app://./index.html")
+    // autoUpdater.checkForUpdatesAndNotify()
   }
 }
 

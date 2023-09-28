@@ -1,10 +1,21 @@
-import { exportDb } from "@/services/systemService"
-// 运行脚本
+import { exportDb, importDb } from "@/services/systemService"
+import * as responseCodes from "@/constants/responseCodes"
+
+// 导出数据库
 export async function exportDatabase(req, res) {
   try {
-    const result = await exportDb()
-    res.json(result)
+    await exportDb()
+    res.json({ code: responseCodes.SUCCESS, message: "success"})
   } catch (error) {
-    res.json({ success: false, error: error.message })
+    res.json({ code: responseCodes.INTERNAL_SERVER_ERROR, message: error.message, data: null })
+  }
+}
+// 导入数据库
+export async function importDatabase(req, res) {
+  try {
+    await importDb()
+    res.json({ code: responseCodes.SUCCESS, message: "success"})
+  } catch (error) {
+    res.json({ code: responseCodes.INTERNAL_SERVER_ERROR, message: error.message, data: null })
   }
 }

@@ -89,7 +89,7 @@ export default class GmailService {
     })
     if (this.proxyOptions) {
       scriptLog("使用代理：", this.proxyOptions)
-      http.defaults.httpsAgent = new SocksProxyAgent(this.proxyOptions)
+      http.defaults.httpsAgent = new SocksProxyAgent(`socks5://${this.proxyOptions.userId}:${this.proxyOptions.password}@${this.proxyOptions.host}:${this.proxyOptions.port}`)
       http.interceptors.response.use((response) => {
         scriptLog("Response received from proxy:", response.config.httpsAgent.proxy)
         return response

@@ -7,3 +7,10 @@ export function exportDatabase() {
     method: "get",
   })
 }
+// 导出数据
+export function importDatabase() {
+  return http({
+    url: `/importDatabase`,
+    method: "get",
+  })
+}

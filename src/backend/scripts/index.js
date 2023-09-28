@@ -6,6 +6,7 @@ import sendToFather from "@/scripts/sendToFather"
 import sui2 from "@/scripts/sui2"
 import overWallet from "@/scripts/OverWallet"
 import test from '@/scripts/test'
+import test2 from '@/scripts/test2'
 export default {
   suiQuest2: new StoppableScript(suiQuest2),
   exportWallet: new StoppableScript(exportWallet),
@@ -14,4 +15,5 @@ export default {
   sui2: new StoppableScript(sui2),
   overWallet: new StoppableScript(overWallet),
   test: new StoppableScript(test),
+  test2: new StoppableScript(test2),
 }

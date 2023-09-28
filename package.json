@@ -1,16 +1,21 @@
 {
   "name": "4am",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve --mode production",
     "build": "vue-cli-service build --mode development",
+    "electron:publish": "vue-cli-service electron:build --mode production -p always ",
     "electron:build": "vue-cli-service electron:build --mode production",
     "electron:serve": "vue-cli-service electron:serve --mode development",
     "postinstall": "electron-builder install-app-deps",
     "postuninstall": "electron-builder install-app-deps"
   },
   "main": "background.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cardamon-dk/4am"
+  },
   "dependencies": {
     "@babel/preset-env": "^7.22.20",
     "@electron/remote": "^2.0.11",
@@ -18,12 +23,15 @@
     "axios": "0",
     "core-js": "^3.6.5",
     "dayjs": "^1.11.9",
+    "electron-log": "^4.4.8",
+    "electron-updater": "^6.1.4",
     "element-ui": "^2.15.14",
     "express": "^4.18.2",
     "googleapis": "^105.0.0",
     "mailparser": "^3.6.5",
     "nedb-promises": "^6.2.3",
     "puppeteer-core": "9",
+    "socks-proxy-agent": "^8.0.2",
     "uuid": "^9.0.1",
     "vue": "^2.6.11",
     "vue-router": "^3.2.0",

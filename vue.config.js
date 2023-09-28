@@ -1,4 +1,7 @@
 // vue.config.js
+const webpack = require('webpack');
+const packageJson = require('./package.json');
+
 module.exports = {
   configureWebpack: {
     entry: {
@@ -11,6 +14,13 @@ module.exports = {
         // ... 更多别名
       },
     },
+    plugins: [
+      new webpack.DefinePlugin({
+        "process.env": {
+          VUE_APP_VERSION: JSON.stringify(packageJson.version),
+        },
+      }),
+    ],
   },
   pluginOptions: {
     electronBuilder: {
@@ -25,7 +35,10 @@ module.exports = {
         config.module
           .rule("js")
           .test(/\.(js)$/) // 添加 cjs 和 mjs
-          .exclude.add(/node_modules/)
+          .exclude.add((filepath) => {
+            // 排除 node_modules 目录下的文件，但允许 node_modules/socks-proxy-agent
+            return filepath.includes("node_modules") && !filepath.includes("socks-proxy-agent")
+          })
           .end()
           .use("babel-loader")
           .loader("babel-loader")
@@ -37,23 +50,13 @@ module.exports = {
           .use("babel-loader")
           .loader("babel-loader")
           .end()
-        //   .exclude.add(/node_modules/) // 排除所有第三方库
-        //   .end()
-
-        // // 只转译特定的第三方库
-        // config.module
-        //   .rule("js-for-selected-libraries")
-        //   .test(/\.(js|cjs|mjs)$/) // 添加 cjs 和 mjs
-        //   .include.add(/node_modules\/(html-to-text|mailparser)/) // 指定需要转译的第三方库
-        //   .end()
-        //   .use("babel-loader")
-        //   .loader("babel-loader")
       },
       builderOptions: {
+        publish: ["github"],
         appId: "com.4am.bot",
         win: {
           target: "nsis",
-          icon: './public/icon.ico'
+          icon: "./public/icon.ico",
         },
         nsis: {
           oneClick: false,

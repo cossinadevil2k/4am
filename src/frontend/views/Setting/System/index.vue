@@ -7,8 +7,14 @@
       <el-form-item label="黑夜模式" prop="darkMode">
         <el-switch v-model="form.darkMode"> </el-switch>
       </el-form-item>
-      <el-form-item label="备份数据库">
-        <el-button @click="backupDb">点击备份</el-button>
+      <el-form-item label="导出数据库">
+        <el-button type="text" @click="backupDb">点击导出</el-button>
+      </el-form-item>
+      <el-form-item label="导入数据库">
+        <el-button type="text" @click="importDb">点击导入</el-button>
+      </el-form-item>
+      <el-form-item label="版本信息">
+        <span>{{ version }}</span>
       </el-form-item>
     </el-form>
     <template #footer-right>
@@ -18,7 +24,8 @@
   </PageCard>
 </template>
 <script>
-import { exportDatabase } from '@/api/system'
+import { exportDatabase, importDatabase } from "@/api/system"
+
 export default {
   data() {
     return {
@@ -26,6 +33,7 @@ export default {
         password: "",
         darkMode: false,
       },
+      version: process.env.VUE_APP_VERSION,
     }
   },
   created() {
@@ -48,6 +56,13 @@ export default {
     },
     backupDb() {
       exportDatabase()
+    },
+    async importDb() {
+      await this.$confirm("导入会覆盖原有数据,谨慎操作")
+      importDatabase()
+    },
+    checkUpdate() {
+      window.app.checkUpdate()
     },
   },
 }

@@ -2,7 +2,7 @@ import scripts from "@/scripts"
 const runningScripts = {}
 
 export const runScript = async (scriptName, id) => {
-  console.log(!!runningScripts[id])
+  console.log(scriptName, !!runningScripts[id])
   if (runningScripts[id]) {
     throw new Error("Script already running")
   }

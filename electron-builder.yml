@@ -1,0 +1,6 @@
+publish:
+  provider: github
+  token: ${GH_TOKEN}
+  private: true
+  repo: 4am
+  owner: cardamon-dk
