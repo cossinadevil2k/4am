@@ -31,7 +31,7 @@ export const exportDb = async () => {
   }
 }
 // 从文件导入数据库数据
-export const importDb = async (db) => {
+export const importDb = async () => {
   try {
     const filePaths = dialog.showOpenDialogSync({
       filters: [{ name: "JSON", extensions: ["json"] }],
@@ -40,7 +40,6 @@ export const importDb = async (db) => {
 
     if (filePaths && filePaths.length > 0) {
       const data = JSON.parse(fs.readFileSync(filePaths[0], "utf8"))
-
       await db.email.remove({}, { multi: true })
       await db.over.remove({}, { multi: true })
       await db.setting_over.remove({}, { multi: true })
