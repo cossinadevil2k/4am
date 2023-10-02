@@ -11,7 +11,7 @@ export default class OverApi {
       timeout: 0,
       headers: {
         "User-Agent": "okhttp/4.9.2",
-        "client-version": "1.0.6.51",
+        "client-version": "1.0.6.55",
       },
     })
     this.setProxy()

@@ -12,7 +12,7 @@
       <!-- <el-table-column prop="my_invite_code" label="邀请码" min-width="120"> </el-table-column> -->
       <el-table-column prop="status" label="状态" min-width="100">
         <template #default="{ row }">
-          <span>{{ OVER_STATUS_TEXT[row.status] }}</span>
+          <span :style="{ color : OVER_STATUS_TEXT[row.status] == '已领完'? '#67C23A': '#E6A23C'}">{{ OVER_STATUS_TEXT[row.status] }}</span>
         </template>
       </el-table-column>
       <el-table-column prop="point" label="分数/上次分数" min-width="140">
