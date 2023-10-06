@@ -12,7 +12,7 @@
       <!-- <el-table-column prop="my_invite_code" label="邀请码" min-width="120"> </el-table-column> -->
       <el-table-column prop="status" label="状态" min-width="100">
         <template #default="{ row }">
-          <span :style="{ color : OVER_STATUS_TEXT[row.status] == '已领完'? '#67C23A': '#E6A23C'}">{{ OVER_STATUS_TEXT[row.status] }}</span>
+          <span :style="{ color: OVER_STATUS_TEXT[row.status] == '已领完' ? '#67C23A' : '#E6A23C' }">{{ OVER_STATUS_TEXT[row.status] }}</span>
         </template>
       </el-table-column>
       <el-table-column prop="point" label="分数/上次分数" min-width="140">
@@ -142,20 +142,47 @@ export default {
         cancelButtonText: "取消",
       }).then(async ({ value: answer }) => {
         this.batchRunLoading = true
-        for (let v of this.selectedEmails) {
+
+        const maxConcurrentRequests = 5 // 同时运行的最大请求数量
+        let activeRequests = 0 // 当前活跃的请求数量
+        let index = 0 // 当前处理到的数组索引
+
+        const handleRequest = async (emailObj) => {
           try {
-            v.loading = true
-            const res = await dailyReward(v.email, answer).finally(() => {
-              v.loading = false
-            })
+            emailObj.loading = true
+            const res = await dailyReward(emailObj.email, answer)
             this.$message.info(`
-            领分${res.data.claim_success ? "成功(" + res.data.claim_reward + ")" : "失败"}
-            答题${res.data.quiz_success ? "成功(" + res.data.quiz_reward + ")" : "失败"}
-          `)
+          领分${res.data.claim_success ? "成功(" + res.data.claim_reward + ")" : "失败"}
+          答题${res.data.quiz_success ? "成功(" + res.data.quiz_reward + ")" : "失败"}
+        `)
+            Object.assign(emailObj, res.data.account)
           } catch (error) {
             this.$message.error(error)
+          } finally {
+            emailObj.loading = false
+            activeRequests-- // 完成一个请求后，活跃请求数量减1
           }
         }
+
+        const loop = async () => {
+          while (index < this.selectedEmails.length) {
+            if (activeRequests < maxConcurrentRequests) {
+              activeRequests++
+              handleRequest(this.selectedEmails[index])
+              index++
+            } else {
+              await new Promise((resolve) => setTimeout(resolve, 100)) // 等待一下再检查
+            }
+          }
+        }
+
+        await loop()
+
+        // 等待所有请求完成
+        while (activeRequests > 0) {
+          await new Promise((resolve) => setTimeout(resolve, 100))
+        }
+
         this.batchRunLoading = false
         this.getList()
       })

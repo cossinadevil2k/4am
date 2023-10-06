@@ -15,7 +15,12 @@ export const addAccount = async (name, email, remark) => {
   return await db.over.insert(newEmail)
 }
 export const getAccountById = async (id) => {
-  return await db.over.findOne({ _id: id })
+  const account = await db.over.findOne({ _id: id })
+  return formatAccount(account)
+}
+export const getAccountByEmail = async (email) => {
+  const account = await db.over.findOne({ email })
+  return formatAccount(account)
 }
 
 export const updateAccount = async (id, name, remark) => {
@@ -37,16 +42,7 @@ export const getAccounts = async ({ currentPage = 1, pageSize = 20, query = {}, 
     .exec()
 
   const formattedList = list.map((item) => {
-    const { _id, status, created_at, updated_at, last_claim_at, last_quiz_at, next_claim_available_from, ...rest } = item
-    return {
-      id: _id, // 将 _id 重命名为 id
-      created_at: formatTime(created_at),
-      updated_at: formatTime(updated_at),
-      last_claim_at: formatTime(last_claim_at, "MM-DD HH:mm:ss"),
-      last_quiz_at: formatTime(last_quiz_at, "MM-DD HH:mm:ss"),
-      status: formatStatus(item),
-      ...rest,
-    }
+    return formatAccount(item)
   })
 
   const total = await db.over.count()
@@ -75,6 +71,19 @@ const formatStatus = ({ last_claim_at, last_quiz_at, can_solve = true }) => {
 const formatTime = (timeStmp, fmt = "YY-MM-DD HH:mm:ss") => {
   if (!timeStmp) return ""
   return dayjs(timeStmp).format(fmt)
+}
+
+const formatAccount = (account) => {
+  const { _id, status, created_at, updated_at, last_claim_at, last_quiz_at, next_claim_available_from, ...rest } = account
+  return {
+    id: _id, // 将 _id 重命名为 id
+    created_at: formatTime(created_at),
+    updated_at: formatTime(updated_at),
+    last_claim_at: formatTime(last_claim_at, "MM-DD HH:mm:ss"),
+    last_quiz_at: formatTime(last_quiz_at, "MM-DD HH:mm:ss"),
+    status: formatStatus(account),
+    ...rest,
+  }
 }
 export const getEmails = async () => {
   //获取所有已绑定账户的邮箱
@@ -149,7 +158,8 @@ export const getDailyReward = async (email, answer) => {
     rank: rankRes.data.rank,
     user_count: rankRes.data.user_count,
   })
-
+  const account = await getAccountByEmail(email)
+  response.account = account
   return response
 }
 
@@ -167,9 +177,11 @@ const getOverEmail = async (email) => {
   if (match) {
     const url = match[1]
     scriptLog(`URL: ${url}`)
-    const text = await fetch(url).then((res) => res.text()).catch(err => {
-      console.log(err)
-    })
+    const text = await fetch(url)
+      .then((res) => res.text())
+      .catch((err) => {
+        console.log(err)
+      })
     await sleep(1000)
     return text
   }
@@ -183,7 +195,7 @@ const getMailStatus = async (overApi, verifier, email, elapsedTime = 0) => {
     throw new Error("Operation timed out after 2 minutes")
   }
   if (email.includes("@gmail.com")) {
-    await getOverEmail(email).catch(err => {
+    await getOverEmail(email).catch((err) => {
       console.log(err)
     })
   }
