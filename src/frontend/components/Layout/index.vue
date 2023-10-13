@@ -42,6 +42,10 @@ export default {
               name: "OverWallet",
               path: "/activity-manage/over-wallet",
             },
+            {
+              name: "SuiLette",
+              path: "/activity-manage/sui-lette",
+            },
           ],
         },
         {

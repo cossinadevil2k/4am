@@ -48,6 +48,14 @@ const routes = [
     },
   },
   {
+    path: "/activity-manage/sui-lette",
+    name: "ActivityManage_SuiLette",
+    component: () => import("@/views/ActivityManage/SuiLette"),
+    meta: {
+      title: "SuiLette",
+    },
+  },
+  {
     path: "/setting/system",
     name: "Setting_System",
     component: () => import("@/views/Setting/System"),
