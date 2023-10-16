@@ -2,6 +2,7 @@ import db from "@/db"
 import dayjs from "dayjs"
 import { getHistory } from "@/api/quest3"
 import { sleep } from "@/utils"
+import { scriptLog } from "@/utils/log"
 let stop = false
 export const startWatch = async () => {
   await getHistoryLoop()
@@ -11,8 +12,12 @@ export const stopWatch = () => {
   stop = true
 }
 const getHistoryLoop = async () => {
-  const res = await getHistory()
-  await handleHistory(res)
+  try {
+    const res = await getHistory()
+    await handleHistory(res)
+  } catch (error) {
+    scriptLog(error)
+  }
   if (stop) return
   await sleepHanleStop(60000)
   await getHistoryLoop()

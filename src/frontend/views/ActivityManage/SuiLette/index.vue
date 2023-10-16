@@ -5,7 +5,7 @@
       <el-button type="primary" :loading="watching" size="mini" @click="getHistory" title="刷新列表">{{ watching ? "监控中" : "开始监控" }}</el-button>
     </el-row>
     <div class="result-box">
-      <div class="result" v-for="item in tableData" :key="item.id" :class="getClass(item)">
+      <div class="result" v-for="item in tableData" :key="item.id" :class="getClass(item)" :title="item.createTimeStr">
         {{ item.resultRoll === 37 ? "00" : item.resultRoll }}
       </div>
     </div>
@@ -30,10 +30,10 @@ export default {
       this.tableData = []
       res.data.forEach((v, i) => {
         this.tableData.push(v)
-        if (!v.lastId  && i !== res.data.length - 1) {
+        if (!v.lastId && i !== res.data.length - 1) {
           this.tableData.push({
             id: parseInt(Math.random() * 100000),
-            resultRoll: '??',
+            resultRoll: "??",
             createTime: null,
           })
         }
@@ -42,9 +42,12 @@ export default {
     },
     async getHistory() {
       this.watching = true
-      const timer = setInterval(() => {
+      setTimeout(() => {
         this.getList()
       }, 5000)
+      const timer = setInterval(() => {
+        this.getList()
+      }, 30000)
       await getHistory().finally(() => {
         this.watching = false
         clearInterval(timer)
@@ -54,7 +57,7 @@ export default {
       await stopWatch()
     },
     getClass(item) {
-      if(item.resultRoll === '??') return 'yellow'
+      if (item.resultRoll === "??") return "yellow"
       if (item.resultRoll === 0 || item.resultRoll === 37) return "blue"
       if ([1, 3, 5, 7, 9, 12, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36].includes(item.resultRoll)) return "red"
       return "black"
@@ -66,6 +69,7 @@ export default {
 .result-box {
   display: flex;
   justify-content: flex-start;
+  align-content: flex-start;
   flex-wrap: wrap;
   height: 100%;
   overflow-y: auto;
