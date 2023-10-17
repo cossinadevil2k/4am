@@ -4,7 +4,7 @@ import { getRank, getSUINS } from "@/api/quest3"
 import { scriptLog } from "@/utils/log"
 import { dialog } from "electron"
 import fs from "fs"
-
+import { $page } from "@/utils/curd"
 export const batchAdd = async (addressList) => {
   let count = 0
   for (let address of addressList) {
@@ -77,20 +77,20 @@ export const deleteAccount = async (ids) => {
   return result
 }
 
-export const getAccounts = async ({ currentPage = 1, pageSize = 20, query = {}, sort = { score: -1 } }) => {
-  const list = await db.sui_quest
-    .find(query)
-    .sort(sort)
-    .skip((currentPage - 1) * pageSize)
-    .limit(pageSize)
-    .exec()
+export const getAccounts = async ({ currentPage, pageSize, query, sort = { score: -1 } }) => {
+  const { list, pageInfo } = await $page({
+    db: db.sui_quest,
+    currentPage,
+    pageSize,
+    query,
+    sort,
+  })
 
   const formattedList = list.map((item) => {
     return formatAccount(item)
   })
 
-  const total = await db.sui_quest.count()
-  return { list: formattedList, pageInfo: { currentPage, pageSize, total } }
+  return { list: formattedList, pageInfo }
 }
 const formatTime = (timeStmp, fmt = "MM-DD HH:mm") => {
   if (!timeStmp) return ""

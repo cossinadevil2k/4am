@@ -30,6 +30,43 @@ export const exportDb = async () => {
     throw new Error("An error occurred while exporting data.")
   }
 }
+export const exportDbWithOption = async (names) => {
+  const pList = names.map((v) => db[v].find({}))
+  Promise.all(pList).then(async (rList) => {
+    const allData = {}
+    rList.forEach((v, i) => {
+      allData[names[i]] = v
+    })
+    const defaultFileName = `4am-db-${names.join("-")}-${dayjs().format("YYMMDDHHmm")}.json`
+    const options = {
+      title: "Save Database Backup",
+      defaultPath: defaultFileName,
+      filters: [{ name: "JSON", extensions: ["json"] }],
+    }
+    const { filePath } = await dialog.showSaveDialog(options)
+    if (filePath) {
+      fs.writeFileSync(filePath, JSON.stringify(allData, null, 2))
+    }
+  })
+}
+export const importDbAll = async () => {
+  try {
+    const filePaths = dialog.showOpenDialogSync({
+      filters: [{ name: "JSON", extensions: ["json"] }],
+      properties: ["openFile"],
+    })
+    if (filePaths && filePaths.length > 0) {
+      const data = JSON.parse(fs.readFileSync(filePaths[0], "utf8"))
+      for (let key in data) {
+        await db[key].remove({}, { multi: true })
+        await db[key].insert(data[key])
+      }
+    }
+  } catch (error) {
+    console.error("Error importing database:", error)
+    throw new Error(`Error importing database: ${error}`)
+  }
+}
 // 从文件导入数据库数据
 export const importDb = async () => {
   try {

@@ -1,21 +1,31 @@
 <template>
   <PageCard>
     <el-row slot="header-right">
-      <el-button v-if="watching" type="danger" size="mini" @click="stopWatch" title="刷新列表">停止监控</el-button>
-      <el-button v-if="catching" type="danger" size="mini" @click="stopPlayer" title="刷新列表">停止抓用户</el-button>
-      <el-button type="primary" :loading="watching" size="mini" @click="getHistory" title="刷新列表">{{ watching ? "监控中" : "开始监控" }}</el-button>
-      <el-button type="primary" :loading="catching" size="mini" @click="getPlayer" title="刷新列表">{{ catching ? "抓用户中" : "开始抓用户" }}</el-button>
+      <el-button type="primary" size="mini" @click="importDb">导入</el-button>
+      <el-button type="primary" size="mini" @click="exportDb">导出</el-button>
     </el-row>
     <div class="result-box">
       <div class="result" v-for="item in tableData" :key="item.id" :class="getClass(item)" :title="item.createTimeStr">
         {{ item.resultRoll === 37 ? "00" : item.resultRoll }}
       </div>
     </div>
+    <template slot="footer-left">
+      <el-button :type="watching ? 'danger' : 'primary'" size="mini" @click="getHistory">{{ watching ? "停止监控" : "开始监控" }}</el-button>
+      <el-button :type="catching ? 'danger' : 'primary'" size="mini" @click="getPlayer">{{ catching ? "停止抓用户" : "开始抓用户" }}</el-button>
+      <el-button type="primary" size="small" @click="openDialog">统计安全数字</el-button>
+    </template>
+    <template slot="footer-right">
+      <el-button type="text" size="small">沉没数量：{{ hitCount }}</el-button>
+    </template>
+    <SafeNumber ref="safeNumber" @success="checkSafeNumber" />
   </PageCard>
 </template>
 <script>
 import { getHistory, getPlayer, stopPlayer, stopWatch, getHistoryRecord } from "@/api/quest3"
+import { exportDbWithOption, importDbAll } from "@/api/system"
+import SafeNumber from "./Dialog/safeNumber.vue"
 export default {
+  components: { SafeNumber },
   data() {
     return {
       tableData: [],
@@ -23,7 +33,13 @@ export default {
       catching: false,
     }
   },
-  computed: {},
+  computed: {
+    hitCount() {
+      return this.tableData.reduce((pre, v) => {
+        return [0, 37].includes(v.resultRoll) && v.highlight ? ++pre : pre
+      }, 0)
+    },
+  },
   mounted() {
     this.getList()
   },
@@ -44,6 +60,9 @@ export default {
       console.log(res.data)
     },
     async getHistory() {
+      if (this.watching) {
+        return this.stopWatch()
+      }
       this.watching = true
       setTimeout(() => {
         this.getList()
@@ -57,6 +76,9 @@ export default {
       })
     },
     async getPlayer() {
+      if (this.catching) {
+        return this.stopPlayer()
+      }
       this.catching = true
       await getPlayer().finally(() => {
         this.catching = false
@@ -69,10 +91,33 @@ export default {
       await stopPlayer()
     },
     getClass(item) {
+      let className = ""
+      if (item.highlight) className = "highlight "
       if (item.resultRoll === "??") return "yellow"
-      if (item.resultRoll === 0 || item.resultRoll === 37) return "blue"
+      if (item.resultRoll === 0 || item.resultRoll === 37) return className + "blue"
       if ([1, 3, 5, 7, 9, 12, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36].includes(item.resultRoll)) return "red"
       return "black"
+    },
+    checkSafeNumber(form) {
+      const { number } = form
+      if (!number) return
+      this.tableData = this.tableData.map((v, i) => {
+        return {
+          ...v,
+          highlight: [0, 37].includes(this.tableData[i + +number]?.resultRoll || -1),
+        }
+      })
+    },
+    openDialog() {
+      this.$refs.safeNumber.open()
+    },
+    exportDb() {
+      exportDbWithOption({ names: ["sui_lette"] })
+    },
+    async importDb() {
+      await this.$confirm("导入会覆盖原有数据,谨慎操作")
+      await importDbAll()
+      this.getList()
     },
   },
 }
@@ -114,6 +159,16 @@ export default {
       background: yellow;
       border: 1px solid yellow;
       color: blue;
+    }
+    &.highlight {
+      background: purple;
+      border: 2px solid purple;
+      color: skyblue;
+      font-size: 20px;
+      // transform: ;
+      &.blue {
+        color: red;
+      }
     }
   }
 }
