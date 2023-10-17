@@ -31,9 +31,10 @@ export async function importDatabase(req, res) {
   }
 }
 // 导入数据库
-export async function importDbAll(req, res) {
+export async function importDbWithOption(req, res) {
   try {
-    await systemService.importDbAll()
+    const { names } = req.body
+    await systemService.importDbWithOption(names)
     res.json({ code: responseCodes.SUCCESS, message: "success"})
   } catch (error) {
     res.json({ code: responseCodes.INTERNAL_SERVER_ERROR, message: error.message, data: null })

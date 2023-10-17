@@ -5,5 +5,5 @@ export default function (router) {
   router.get("/exportDatabase", systemController.exportDatabase)
   router.post("/exportDbWithOption", systemController.exportDbWithOption)
   router.get("/importDatabase", systemController.importDatabase)
-  router.get("/importDbAll", systemController.importDbAll)
+  router.post("/importDbWithOption", systemController.importDbWithOption)
 }

@@ -24,9 +24,10 @@ export function importDatabase() {
   })
 }
 // 导入数据-根据数据key导入
-export function importDbAll() {
+export function importDbWithOption(data) {
   return http({
-    url: `/importDbAll`,
-    method: "get",
+    url: `/importDbWithOption`,
+    method: "post",
+    data
   })
 }

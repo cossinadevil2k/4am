@@ -49,7 +49,7 @@ export const exportDbWithOption = async (names) => {
     }
   })
 }
-export const importDbAll = async () => {
+export const importDbWithOption = async (names) => {
   try {
     const filePaths = dialog.showOpenDialogSync({
       filters: [{ name: "JSON", extensions: ["json"] }],
@@ -57,7 +57,7 @@ export const importDbAll = async () => {
     })
     if (filePaths && filePaths.length > 0) {
       const data = JSON.parse(fs.readFileSync(filePaths[0], "utf8"))
-      for (let key in data) {
+      for (let key of names) {
         await db[key].remove({}, { multi: true })
         await db[key].insert(data[key])
       }

@@ -22,7 +22,7 @@
 </template>
 <script>
 import { getHistory, getPlayer, stopPlayer, stopWatch, getHistoryRecord } from "@/api/quest3"
-import { exportDbWithOption, importDbAll } from "@/api/system"
+import { exportDbWithOption, importDbWithOption } from "@/api/system"
 import SafeNumber from "./Dialog/safeNumber.vue"
 export default {
   components: { SafeNumber },
@@ -116,7 +116,7 @@ export default {
     },
     async importDb() {
       await this.$confirm("导入会覆盖原有数据,谨慎操作")
-      await importDbAll()
+      await importDbWithOption({ names: ["sui_lette"] })
       this.getList()
     },
   },
