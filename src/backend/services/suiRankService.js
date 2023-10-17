@@ -139,8 +139,9 @@ export const importDb = async () => {
     if (filePaths && filePaths.length > 0) {
       const data = JSON.parse(fs.readFileSync(filePaths[0], "utf8"))
       for (let v of data.sui_quest) {
-        const account = await db.sui_quest.find({ address: v.address })
-        if (account) return
+        const account = await db.sui_quest.findOne({ address: v.address })
+        if (account) continue
+        console.log(v)
         await db.sui_quest.insert(v)
       }
       console.log("Database imported successfully.")
