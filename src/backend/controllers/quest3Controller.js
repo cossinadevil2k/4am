@@ -13,3 +13,12 @@ export const getHistoryRecord = async (req, res) => {
   const data = await quest3Service.getHistoryRecord()
   res.json({ code: responseCodes.SUCCESS, message: "success", data })
 }
+export const getPlayer = async (req, res) => {
+  const data = await quest3Service.startCatchPlayer()
+  res.json({ code: responseCodes.SUCCESS, message: "success", data })
+}
+
+export const stopPlayer = async (req, res) => {
+  await quest3Service.stopPlayer()
+  res.json({ code: responseCodes.SUCCESS, message: "success", data: null })
+}

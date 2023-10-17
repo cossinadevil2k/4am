@@ -1,15 +1,20 @@
 import db from "@/db"
 import dayjs from "dayjs"
-import { getHistory } from "@/api/quest3"
+import { getHistory, getGame, contract } from "@/api/quest3"
 import { sleep } from "@/utils"
 import { scriptLog } from "@/utils/log"
+import { batchAdd } from './suiRankService'
 let stop = false
+let stopPlayerFlag = false
 export const startWatch = async () => {
   await getHistoryLoop()
   stop = false
 }
 export const stopWatch = () => {
   stop = true
+}
+export const stopPlayer = () => {
+  stopPlayerFlag = true
 }
 const getHistoryLoop = async () => {
   try {
@@ -28,6 +33,12 @@ const sleepHanleStop = async (time) => {
   await sleep(1000)
   if (stop) return
   await sleepHanleStop(time - 1000)
+}
+const sleepHanleStopPlayer = async (time) => {
+  if (time <= 0) return
+  await sleep(1000)
+  if (stopPlayerFlag) return
+  await sleepHanleStopPlayer(time - 1000)
 }
 
 const handleHistory = async (res) => {
@@ -62,4 +73,63 @@ const handleHistory = async (res) => {
 export const getHistoryRecord = async () => {
   const historyRecord = await db.sui_lette.findOne({ type: "history_record" })
   return historyRecord?.data || []
+}
+
+export const startCatchPlayer = async () => {
+  await getPlayerLoop()
+  stopPlayer = false
+}
+
+const getPlayerLoop = async () => {
+  try {
+    const addressList = await getPlayer()
+    console.log(addressList)
+    batchAdd(addressList)
+  } catch (error) {
+    scriptLog(error)
+  }
+  if (stopPlayerFlag) return
+  await sleepHanleStopPlayer(20000)
+  return await getPlayerLoop() 
+}
+
+const getPlayer = async () => {
+  let id = 0
+  const gameData = await getGame()
+  const game_object_id = gameData.data.result.game_object_id
+  const objectsData = await contract({
+    jsonrpc: "2.0",
+    id,
+    method: "sui_getObject",
+    params: [
+      game_object_id,
+      {
+        showContent: true,
+      },
+    ],
+  })
+  id++
+  const objectId = objectsData.data.result.data.content.fields.bets.fields.contents.fields.id.id
+  const dynamicData = await contract({
+    jsonrpc: "2.0",
+    id,
+    method: "suix_getDynamicFields",
+    params: [objectId, null, null],
+  })
+  id++
+  const objects = dynamicData.data.result.data.map((v) => v.objectId)
+  const addressData = await contract({
+    jsonrpc: "2.0",
+    id,
+    method: "sui_multiGetObjects",
+    params: [
+      objects,
+      {
+        showContent: true,
+      },
+    ],
+  })
+  id++
+  const addressList = addressData.data.result.map((v) => v.data.content.fields.value.fields.player)
+  return Array.from(new Set(addressList))
 }

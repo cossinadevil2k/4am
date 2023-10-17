@@ -56,6 +56,14 @@ const routes = [
     },
   },
   {
+    path: "/activity-manage/sui-quest3-rank",
+    name: "ActivityManage_SuiQuest3Rank",
+    component: () => import("@/views/ActivityManage/SuiQuest3Rank"),
+    meta: {
+      title: "SuiQuest3Rank",
+    },
+  },
+  {
     path: "/setting/system",
     name: "Setting_System",
     component: () => import("@/views/Setting/System"),

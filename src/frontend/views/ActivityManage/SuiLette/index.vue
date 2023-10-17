@@ -2,7 +2,9 @@
   <PageCard>
     <el-row slot="header-right">
       <el-button v-if="watching" type="danger" size="mini" @click="stopWatch" title="刷新列表">停止监控</el-button>
+      <el-button v-if="catching" type="danger" size="mini" @click="stopPlayer" title="刷新列表">停止抓用户</el-button>
       <el-button type="primary" :loading="watching" size="mini" @click="getHistory" title="刷新列表">{{ watching ? "监控中" : "开始监控" }}</el-button>
+      <el-button type="primary" :loading="catching" size="mini" @click="getPlayer" title="刷新列表">{{ catching ? "抓用户中" : "开始抓用户" }}</el-button>
     </el-row>
     <div class="result-box">
       <div class="result" v-for="item in tableData" :key="item.id" :class="getClass(item)" :title="item.createTimeStr">
@@ -12,12 +14,13 @@
   </PageCard>
 </template>
 <script>
-import { getHistory, stopWatch, getHistoryRecord } from "@/api/quest3"
+import { getHistory, getPlayer, stopPlayer, stopWatch, getHistoryRecord } from "@/api/quest3"
 export default {
   data() {
     return {
       tableData: [],
       watching: false,
+      catching: false,
     }
   },
   computed: {},
@@ -53,8 +56,17 @@ export default {
         clearInterval(timer)
       })
     },
+    async getPlayer() {
+      this.catching = true
+      await getPlayer().finally(() => {
+        this.catching = false
+      })
+    },
     async stopWatch() {
       await stopWatch()
+    },
+    async stopPlayer() {
+      await stopPlayer()
     },
     getClass(item) {
       if (item.resultRoll === "??") return "yellow"

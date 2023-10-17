@@ -6,7 +6,7 @@ const { clipboard } = require("electron");
 import { scriptLog } from "@/utils/log";
 
 const puppeteer = require("puppeteer-core");
-async function main(event, id, password, amount) {
+async function main(stopEvent, { id, password, amount }) {
   const res = await openBrowser({
     id,
     args: [],

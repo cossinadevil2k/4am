@@ -24,3 +24,19 @@ export function getHistoryRecord(params) {
     params,
   })
 }
+// 获取玩轮盘的用户
+export function getPlayer(params) {
+  return http({
+    url: `/quest3/getPlayer`,
+    method: "get",
+    params,
+  })
+}
+// 停止监控历史数据
+export function stopPlayer(params) {
+  return http({
+    url: `/quest3/stopPlayer`,
+    method: "get",
+    params,
+  })
+}

@@ -1,7 +1,7 @@
 import Vue from "vue"
 import Vuex from "vuex"
 import dayjs from "dayjs"
-import { local } from '@/utils/storage'
+import { local } from "@/utils/storage"
 Vue.use(Vuex)
 // 动态设置主题
 function setTheme(themeName) {
@@ -22,12 +22,7 @@ window.addEventListener("load", () => {
 export default new Vuex.Store({
   state: {
     setting: setting || {},
-    logs: [
-      {
-        log: "0x6ca2f5beb64749ea00c45aad7ac00a4f62e6ed32a5a0089f63230d20aceca5bc",
-        time: "2021-01-01 00:00:00",
-      },
-    ],
+    logs: [],
   },
   mutations: {
     UPDATE_SETTING(state, setting) {

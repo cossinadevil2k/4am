@@ -1,19 +1,17 @@
 import http from "@/utils/http"
 import { v4 as uuid } from "uuid"
 
-export function runScript(scriptName, params) {
+export function runScript(data) {
   return http({
-    url: `/run-script/${scriptName}`,
-    method: "get",
-    params: {
-      id: uuid(),
-      ...params,
-    },
+    url: `/run-script`,
+    method: "post",
+    data
   })
 }
-export function stopScript(id) {
+export function stopScript(data) {
   return http({
-    url: `/stop-script/${id}`,
-    method: "get",
+    url: `/stop-script`,
+    method: "post",
+    data
   })
 }

@@ -1,7 +1,7 @@
 <template>
-  <el-dialog title="归集设置" :visible.sync="dialogFormVisible" width="400px">
+  <el-dialog :title="title" :visible.sync="dialogFormVisible" width="400px">
     <el-form :model="form" label-position="right" :label-width="formLabelWidth">
-      <el-form-item label="max">
+      <el-form-item v-if="type === 'sendToFather'" label="max">
         <el-switch v-model="form.max"></el-switch>
       </el-form-item>
       <el-form-item v-if="!form.max" label="金额">
@@ -26,11 +26,19 @@ export default {
       },
       formLabelWidth: "80px",
       dialogFormVisible: false,
+      type: ''
     };
   },
+  computed:{
+    title(){
+      if(this.type === 'sendToChild') return '分水设置'
+      if(this.type === 'sendToFather') return '归集设置'
+    }
+  },
   methods: {
-    open(id, password) {
+    open(id, password, type) {
       this.dialogFormVisible = true;
+      this.type = type
       this.form = {
         ...this.form,
         id,
@@ -38,7 +46,7 @@ export default {
       };
     },
     submit() {
-      this.$emit("submit", this.form);
+      this.$emit("submit", this.form, this.type);
       this.dialogFormVisible = false;
     },
   },

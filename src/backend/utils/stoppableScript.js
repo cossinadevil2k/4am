@@ -10,31 +10,23 @@ export default class StoppableScript {
     this.currentRestartCount = 0
   }
 
-  async _runScript() {
+  async _runScript(params) {
     try {
-      await this.scriptFunction(this.stopSignal)
-      this.currentRestartCount = 0 // 重置重启次数
+      await this.scriptFunction(this.stopSignal, params)
     } catch (error) {
       console.error("An error occurred:", error)
-      if (this.restartOnError && this.currentRestartCount < this.maxRestartCount) {
-        console.log("Restarting script...")
-        this.currentRestartCount++
-        await new Promise((resolve) => setTimeout(resolve, this.restartInterval))
-        this._runScript()
-      }
     }
   }
 
-  async run() {
+  async run(params) {
     // 监听停止信号
     this.stopSignal.once("stop", () => {
       throw new Error("Script was stopped")
     })
-    await this._runScript()
+    await this._runScript(params)
   }
 
   stop() {
-    this.isStopped = true
     this.stopSignal.emit("stop")
   }
 }

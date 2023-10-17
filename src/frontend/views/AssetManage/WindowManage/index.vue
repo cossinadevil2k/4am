@@ -21,8 +21,8 @@
       <el-table-column prop="remark" label="备注"> </el-table-column>
       <el-table-column prop="operate" label="操作">
         <template #default="{ row }">
-          <el-button type="text" size="mini">分水</el-button>
-          <el-button type="text" size="mini" @click="openSendSetting(row)">集水</el-button>
+          <el-button type="text" size="mini" @click="openSendSetting(row, 'sendToChild')">分水</el-button>
+          <el-button type="text" size="mini" @click="openSendSetting(row, 'sendToFather')">集水</el-button>
           <el-button type="text" size="mini" @click="exportWallet(row)">导出钱包地址</el-button>
           <el-button type="text" size="mini" @click="sui2(row)">Sui2期取货</el-button>
         </template>
@@ -63,7 +63,7 @@ export default {
         total: 0,
       },
       loading: false,
-      id: uuid()
+      id: uuid(),
     }
   },
   computed: {
@@ -74,10 +74,10 @@ export default {
     this.getGroup()
   },
   methods: {
-    stop(){
+    stop() {
       stopScript(this.id)
     },
-    start(name){
+    start(name) {
       runScript(name, { id: this.id })
     },
     getList() {
@@ -121,13 +121,21 @@ export default {
       if (!this.setting.password) return this.$message.error("请先设置密码")
       this.$ipc.send("export-wallet", row.id, this.setting.password) // 导出钱包
     },
-    openSendSetting(row) {
+    openSendSetting(row, type = "sendToChild") {
       if (!this.setting.password) return this.$message.error("请先设置密码")
-      this.$refs.amount.open(row.id, this.setting.password)
+      this.$refs.amount.open(row.id, this.setting.password, type)
     },
-    sendToFather(row) {
-      console.log(row)
-      this.$ipc.send("send-to-father", row.id, row.password, row.max ? Infinity : row.amount)
+    sendToFather(row, name) {
+      const id = uuid()
+      runScript({
+        name,
+        id,
+        params: {
+          id: row.id,
+          password: row.password,
+          amount: row.max ? Infinity : row.amount,
+        },
+      })
     },
     sui2(row) {
       if (!this.setting.password) return this.$message.error("请先设置密码")

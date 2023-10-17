@@ -1,7 +1,7 @@
 import scripts from "@/scripts"
 const runningScripts = {}
 
-export const runScript = async (scriptName, id) => {
+export const runScript = async (scriptName, id, params) => {
   console.log(scriptName, !!runningScripts[id])
   if (runningScripts[id]) {
     throw new Error("Script already running")
@@ -12,7 +12,7 @@ export const runScript = async (scriptName, id) => {
   }
   runningScripts[id] = script
   try {
-    await script.run()
+    await script.run(params)
     return { status: "completed", id }
   } catch (error) {
     if (error.message === "Script was stopped") {

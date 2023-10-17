@@ -1,10 +1,9 @@
 import { runScript as runScriptService, stopScript as stopScriptService } from "@/services/scriptService"
 // 运行脚本
 export async function runScript(req, res) {
-  const { scriptName } = req.params
-  const { id } = req.query
+  const { name, id, params } = req.body
   try {
-    const { output } = await runScriptService(scriptName, id)
+    const output = await runScriptService(name, id, params)
     res.json({ success: true, output })
   } catch (error) {
     res.json({ success: false, error: error.message })
@@ -12,7 +11,7 @@ export async function runScript(req, res) {
 }
 // 停止脚本
 export function stopScript(req, res) {
-  const { id } = req.params
+  const { id } = req.body
   if (stopScriptService(id)) {
     res.json({ success: true, message: `Stopped script with ID ${id}` })
   } else {

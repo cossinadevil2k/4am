@@ -2,6 +2,12 @@ import axios from "axios"
 import { Message } from "element-ui"
 const baseURL = process.env.VUE_APP_FRONTEND_BASE_URL || "http://localhost:3333"
 const request = axios.create({
+  // headers: {
+  //   "content-type": "application/json",
+  //   authority: "quests.mystenlabs.com",
+  //   Referer: "https://quests.mystenlabs.com/?ref=tech.mystenlabs.com",
+  //   "User-Agent": "PostmanRuntime/7.33.0",
+  // },
   baseURL,
   timeout: 0,
 })
@@ -15,7 +21,6 @@ request.interceptors.request.use(
     return Promise.reject(error)
   }
 )
-
 
 // 响应拦截器
 request.interceptors.response.use(

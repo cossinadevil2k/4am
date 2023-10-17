@@ -20,6 +20,10 @@ const db = {
     autoload: true,
     filename: path.join(dbPath, "sui_lette.db"),
   }),
+  sui_quest: Datastore.create({
+    autoload: true,
+    filename: path.join(dbPath, "sui_quest.db"),
+  }),
   setting_over: Datastore.create({
     autoload: true,
     filename: path.join(dbPath, "setting_over.db"),

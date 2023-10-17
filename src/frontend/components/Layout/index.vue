@@ -46,6 +46,10 @@ export default {
               name: "SuiLette",
               path: "/activity-manage/sui-lette",
             },
+            {
+              name: "SuiQuest3Rank",
+              path: "/activity-manage/sui-quest3-rank",
+            },
           ],
         },
         {
