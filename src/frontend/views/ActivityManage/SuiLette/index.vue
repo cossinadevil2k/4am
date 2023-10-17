@@ -3,8 +3,9 @@
     <el-row slot="header-right">
       <el-button type="primary" size="mini" @click="importDb">导入</el-button>
       <el-button type="primary" size="mini" @click="exportDb">导出</el-button>
+      <el-button type="primary" size="mini" @click="getList">刷新</el-button>
     </el-row>
-    <div class="result-box">
+    <div class="result-box" :class="{ 'hide-all': hitCount }">
       <div class="result" v-for="item in tableData" :key="item.id" :class="getClass(item)" :title="item.createTimeStr">
         {{ item.resultRoll === 37 ? "00" : item.resultRoll }}
       </div>
@@ -13,9 +14,11 @@
       <el-button :type="watching ? 'danger' : 'primary'" size="mini" @click="getHistory">{{ watching ? "停止监控" : "开始监控" }}</el-button>
       <el-button :type="catching ? 'danger' : 'primary'" size="mini" @click="getPlayer">{{ catching ? "停止抓用户" : "开始抓用户" }}</el-button>
       <el-button type="primary" size="small" @click="openDialog">统计安全数字</el-button>
+      <el-button type="primary" size="small" @click="highlightDB0">高亮双0</el-button>
     </template>
     <template slot="footer-right">
       <el-button type="text" size="small">沉没数量：{{ hitCount }}</el-button>
+      <el-button type="text" size="small">可投数量：{{ unHitCount }}</el-button>
     </template>
     <SafeNumber ref="safeNumber" @success="checkSafeNumber" />
   </PageCard>
@@ -36,7 +39,12 @@ export default {
   computed: {
     hitCount() {
       return this.tableData.reduce((pre, v) => {
-        return [0, 37].includes(v.resultRoll) && v.highlight ? ++pre : pre
+        return v.highlight && [0, 37].includes(v.resultRoll)  ? ++pre : pre
+      }, 0)
+    },
+    unHitCount() {
+      return this.tableData.reduce((pre, v) => {
+        return v.highlight && ![0, 37].includes(v.resultRoll) ? ++pre : pre
       }, 0)
     },
   },
@@ -93,10 +101,10 @@ export default {
     getClass(item) {
       let className = ""
       if (item.highlight) className = "highlight "
-      if (item.resultRoll === "??") return "yellow"
+      if (item.resultRoll === "??") return className + "yellow"
       if (item.resultRoll === 0 || item.resultRoll === 37) return className + "blue"
-      if ([1, 3, 5, 7, 9, 12, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36].includes(item.resultRoll)) return "red"
-      return "black"
+      if ([1, 3, 5, 7, 9, 12, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36].includes(item.resultRoll)) return className + "red"
+      return className + "black"
     },
     checkSafeNumber(form) {
       const { number } = form
@@ -104,7 +112,7 @@ export default {
       this.tableData = this.tableData.map((v, i) => {
         return {
           ...v,
-          highlight: [0, 37].includes(this.tableData[i + +number]?.resultRoll || -1),
+          highlight: [0, 37].includes(this.tableData[i + +number]?.resultRoll),
         }
       })
     },
@@ -119,6 +127,14 @@ export default {
       await importDbWithOption({ names: ["sui_lette"] })
       this.getList()
     },
+    async highlightDB0(){
+      this.tableData = this.tableData.map((v,i) => {
+        return {
+          ...v,
+          highlight: [0, 37].includes(v.resultRoll) && ([0, 37].includes(this.tableData[i - 1]?.resultRoll) || [0, 37].includes(this.tableData[i + 1]?.resultRoll)) 
+        }
+      })
+    }
   },
 }
 </script>
@@ -168,6 +184,33 @@ export default {
       // transform: ;
       &.blue {
         color: red;
+        background: #000;
+        font-size: 28px;
+        transform: scale(1.3);
+        border: 4px solid red;
+      }
+    }
+  }
+  &.hide-all {
+    .result {
+      &.red,
+      &.black {
+        background: #ccc;
+        border: 1px solid #ccc;
+      }
+      &.highlight {
+        background: purple;
+        border: 2px solid purple;
+        color: skyblue;
+        font-size: 20px;
+        // transform: ;
+        &.blue {
+          color: red;
+          background: #000;
+          font-size: 28px;
+          transform: scale(1.3);
+          border: 4px solid red;
+        }
       }
     }
   }
