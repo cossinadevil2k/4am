@@ -50,6 +50,10 @@ export default {
               name: "SuiQuest3Rank",
               path: "/activity-manage/sui-quest3-rank",
             },
+            {
+              name: "SuiQuest3RankSelf",
+              path: "/activity-manage/sui-quest3-rank-self",
+            },
           ],
         },
         {
