@@ -5,6 +5,11 @@ const request = axios.create({
   timeout: 60000,
   headers: {},
 })
+request.defaults.proxy = {
+  host: '192.168.31.104',
+  port: '7890',
+  protocol: 'http',
+};
 export const getHistory = () => {
   return request({
     method: "get",

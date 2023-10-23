@@ -3,11 +3,11 @@ import * as responseCodes from "@/constants/responseCodes"
 
 export const createAccount = async (req, res) => {
   try {
-    const { address, remark = "" } = req.body
+    const { address, remark = "", bgColor = "" } = req.body
     if (!address) {
       return res.status(responseCodes.BAD_REQUEST).json({ code: responseCodes.BAD_REQUEST, message: "address are required", data: null })
     }
-    const emailRecord = await suiRankSelfService.addAccount(address, remark)
+    const emailRecord = await suiRankSelfService.addAccount(address, remark, bgColor)
     res.json({ code: responseCodes.SUCCESS, message: "address created successfully", data: emailRecord })
   } catch (error) {
     res.json({ code: responseCodes.INTERNAL_SERVER_ERROR, message: error.message, data: null })
@@ -15,11 +15,11 @@ export const createAccount = async (req, res) => {
 }
 export const batchImport = async (req, res) => {
   try {
-    const { address, remark = "" } = req.body
+    const { address, remark = "", bgColor = "" } = req.body
     if (!address || !address.length) {
       return res.status(responseCodes.BAD_REQUEST).json({ code: responseCodes.BAD_REQUEST, message: "address are required", data: null })
     }
-    const emailRecord = await suiRankSelfService.batchImport(address, remark)
+    const emailRecord = await suiRankSelfService.batchImport(address, remark, bgColor)
     res.json({ code: responseCodes.SUCCESS, message: "address created successfully", data: emailRecord })
   } catch (error) {
     res.json({ code: responseCodes.INTERNAL_SERVER_ERROR, message: error.message, data: null })
@@ -36,8 +36,8 @@ export const getAccount = async (req, res) => {
 }
 
 export const updateAccount = async (req, res) => {
-  const { id, remark } = req.body
-  await suiRankSelfService.updateAccount(id, remark)
+  const { id, remark, bgColor } = req.body
+  await suiRankSelfService.updateAccount(id, remark, bgColor)
   res.json({ code: responseCodes.SUCCESS, message: "Email updated successfully", data: null })
 }
 

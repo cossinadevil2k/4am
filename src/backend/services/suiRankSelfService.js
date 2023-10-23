@@ -6,19 +6,19 @@ import { dialog } from "electron"
 import fs from "fs"
 import { $page } from "@/utils/curd"
 
-export const batchImport = async (addressList, remark) => {
+export const batchImport = async (addressList, remark, bgColor) => {
   for (let address of addressList) {
     try {
-      await addAccount(address, remark, true)
+      await addAccount(address, remark, bgColor, true)
     } catch (error) {
       console.log(error)
     }
   }
 }
 
-export const addAccount = async (address, remark, dontGetRank = false) => {
+export const addAccount = async (address, remark, bgColor, dontGetRank = false) => {
   const res = await db.sui_quest_self.findOne({ address })
-  const newAddress = { address, remark, created_at: new Date().getTime(), updated_at: new Date().getTime() }
+  const newAddress = { address, remark, bgColor, created_at: new Date().getTime(), updated_at: new Date().getTime() }
   let rankData = null
   if (res) {
     throw new Error("address already exists")
@@ -48,8 +48,8 @@ export const getAccountByEmail = async (email) => {
   return formatAccount(account)
 }
 
-export const updateAccount = async (id, remark) => {
-  const updatedEmail = { remark }
+export const updateAccount = async (id, remark, bgColor) => {
+  const updatedEmail = { remark, bgColor }
   await db.sui_quest_self.update({ _id: id }, { $set: updatedEmail })
 }
 export const updateRank = async (id) => {
@@ -77,7 +77,7 @@ export const deleteAccount = async (ids) => {
   return result
 }
 
-export const getAccounts = async ({ currentPage, pageSize, query, sort = { score: -1 } }) => {
+export const getAccounts = async ({ currentPage, pageSize, query, sort = { created_at: 1 } }) => {
   const { list, pageInfo } = await $page({
     db: db.sui_quest_self,
     currentPage,

@@ -7,6 +7,11 @@
       <el-form-item label="备注" prop="remark">
         <el-input v-model="form.remark" type="textarea" size="small"></el-input>
       </el-form-item>
+      <el-form-item label="背景色" porp="bgColor">
+        <div class="bgColor" :style="{ background: form.bgColor }">
+          <el-color-picker v-model="form.bgColor" size="mini" show-alpha></el-color-picker>
+        </div>
+      </el-form-item>
     </el-form>
     <div slot="footer" class="dialog-footer">
       <el-button @click="dialogVisible = false">取消</el-button>
@@ -24,6 +29,7 @@ export default {
       form: {
         address: "",
         remark: "",
+        bgColor: "#fff",
       },
       emails: [],
       rules: {
@@ -68,4 +74,20 @@ export default {
 }
 </script>
 
-<style scoped></style>
+<style lang="less" scoped>
+.bgColor {
+  width: 200px;
+  height: 40px;
+}
+::v-deep .el-color-picker.el-color-picker--mini {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  height: 100%;
+  .el-color-picker__trigger {
+    border: none;
+    height: 100%;
+  }
+}
+</style>

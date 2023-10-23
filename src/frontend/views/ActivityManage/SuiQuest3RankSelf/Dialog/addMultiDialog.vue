@@ -7,6 +7,11 @@
       <el-form-item label="备注" prop="remark">
         <el-input v-model="form.remark" type="textarea" size="small"></el-input>
       </el-form-item>
+      <el-form-item label="背景色" porp="bgColor">
+        <div class="bgColor" :style="{ background: form.bgColor }">
+          <el-color-picker v-model="form.bgColor" size="mini" show-alpha></el-color-picker>
+        </div>
+      </el-form-item>
     </el-form>
     <div class="line-count">行数: {{ lineCount }}</div>
     <div class="dialog-footer">
@@ -24,6 +29,7 @@ export default {
       form: {
         address: "",
         remark: "",
+        bgColor: "#fff",
       },
       dialogVisible: false,
     }
@@ -62,7 +68,7 @@ export default {
     async addAddress(address) {
       // 假设你有一个用于批量新增的方法，这里只是简单的示例
       console.log("批量新增地址:", address)
-      await batchImport({ address, remark: this.form.remark })
+      await batchImport({ address, remark: this.form.remark, bgColor: this.form.bgColor })
     },
   },
 }

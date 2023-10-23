@@ -58,6 +58,7 @@ export const updateRank = async (id) => {
   const account = await db.sui_quest.findOne({ _id: id })
   let rankData = account.rankData
   let suins = account.suins
+  let updated_at = account.updated_at
   try {
     const rank = await getRank(account.address)
     rankData = rank?.data?.[0]?.result?.data || null
@@ -65,10 +66,11 @@ export const updateRank = async (id) => {
     scriptLog(rank?.data)
     scriptLog(suinsData?.data)
     suins = suinsData?.data?.result?.data?.[0] || ""
+    updated_at = new Date().getTime()
   } catch (error) {
     console.log(error)
   }
-  await db.sui_quest.update({ _id: id }, { $set: { rankData, suins, updated_at: new Date().getTime(), score: rankData?.score, rank: rankData?.rank } })
+  await db.sui_quest.update({ _id: id }, { $set: { rankData, suins, updated_at, score: rankData?.score, rank: rankData?.rank } })
   const newAccount = await db.sui_quest.findOne({ _id: id })
   return newAccount
 }

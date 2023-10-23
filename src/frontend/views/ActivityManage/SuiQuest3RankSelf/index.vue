@@ -7,15 +7,15 @@
       <el-button type="primary" size="mini" @click="openAccountDialog" title="新增账号">新增</el-button>
       <el-button type="primary" size="mini" @click="() => $refs.addMultiDialog.open()" title="批量新增">批量新增</el-button>
     </el-row>
-    <el-table v-loading="loading" :data="tableData" style="width: 100%" height="100%" @selection-change="handleSelectionChange">
+    <el-table v-loading="loading" :data="tableData" style="width: 100%" height="100%" @selection-change="handleSelectionChange" :row-style="getRowStyle">
       <el-table-column type="selection" width="55"></el-table-column>
       <el-table-column prop="address" label="地址" min-width="120">
         <template #default="{ row }">
           <el-button type="text" :title="row.address" @click="$copy(row.address)">{{ fmtAddr(row.address) }}</el-button>
         </template>
       </el-table-column>
-      <el-table-column prop="suins" label="域名" min-width="160"></el-table-column>
-      <el-table-column prop="name" label="总分" min-width="100">
+      <!-- <el-table-column prop="suins" label="域名" min-width="160"></el-table-column> -->
+      <el-table-column prop="name" label="总分" min-width="80">
         <template #default="{ row }">
           <span v-if="row.rankData">{{ row.rankData.score }}</span>
           <span v-else>-</span>
@@ -27,7 +27,7 @@
           <span v-else>-</span>
         </template>
       </el-table-column>
-      <el-table-column prop="DESUICOINFLIP" label="硬币" min-width="100">
+      <el-table-column prop="DESUICOINFLIP" label="硬币" min-width="80">
         <template #default="{ row }">
           <span v-if="row.rankData && row.rankData.metadata">{{ row.rankData.metadata.DESUICOINFLIP.toFixed(2) }}</span>
           <span v-else>-</span>
@@ -57,7 +57,7 @@
           <span v-else>-</span>
         </template>
       </el-table-column>
-      <el-table-column prop="BUSHI" label="吃鸡" min-width="80">
+      <el-table-column prop="BUSHI" label="BUSHI" min-width="80">
         <template #default="{ row }">
           <span v-if="row.rankData && row.rankData.metadata">{{ row.rankData.metadata.BUSHI.toFixed(2) }}</span>
           <span v-else>-</span>
@@ -69,26 +69,26 @@
           <span v-else>-</span>
         </template>
       </el-table-column>
-      <el-table-column prop="HAS_SUINS" label="域名" min-width="80">
+      <!-- <el-table-column prop="HAS_SUINS" label="域名" min-width="80">
         <template #default="{ row }">
           <span v-if="row.rankData && row.rankData.metadata">{{ row.rankData.metadata.HAS_SUINS }}</span>
           <span v-else>-</span>
         </template>
-      </el-table-column>
-      <el-table-column prop="WORLDS_BEYOND" label="WORLDS_BEYOND" min-width="150">
+      </el-table-column> -->
+      <el-table-column prop="WORLDS_BEYOND" label="WB" min-width="80">
         <template #default="{ row }">
           <span v-if="row.rankData && row.rankData.metadata">{{ row.rankData.metadata.WORLDS_BEYOND.toFixed(2) }}</span>
           <span v-else>-</span>
         </template>
       </el-table-column>
-      <el-table-column prop="ARCADE_CHAMPION" label="ARCADE_CHAMPION" min-width="170">
+      <el-table-column prop="ARCADE_CHAMPION" label="街机" min-width="80">
         <template #default="{ row }">
           <span v-if="row.rankData && row.rankData.metadata">{{ row.rankData.metadata.ARCADE_CHAMPION.toFixed(2) }}</span>
           <span v-else>-</span>
         </template>
       </el-table-column>
-      <el-table-column prop="updated_at" label="更新时间" min-width="160"> </el-table-column>
       <el-table-column prop="remark" label="备注" min-width="160"> </el-table-column>
+      <el-table-column prop="updated_at" label="更新时间" min-width="160"> </el-table-column>
       <!-- <el-table-column prop="created_at" label="创建时间" min-width="140"></el-table-column> -->
       <el-table-column prop="operate" label="操作" min-width="120">
         <template #default="{ row }">
@@ -146,6 +146,12 @@ export default {
     this.getList()
   },
   methods: {
+    getRowStyle({ row }) {
+      console.log(row)
+      return {
+        background: row.bgColor || ''
+      }
+    },
     async importDb() {
       await importDb()
       this.getList()
