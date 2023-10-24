@@ -1,11 +1,12 @@
 import db from "@/db"
 import dayjs from "dayjs"
+import utc from "dayjs/plugin/utc"
 import { getRank, getSUINS } from "@/api/quest3"
 import { scriptLog } from "@/utils/log"
 import { dialog } from "electron"
 import fs from "fs"
 import { $page } from "@/utils/curd"
-
+dayjs.extend(utc)
 export const batchImport = async (addressList, remark, bgColor) => {
   for (let address of addressList) {
     try {
@@ -57,18 +58,37 @@ export const updateRank = async (id) => {
   let rankData = account.rankData
   let suins = account.suins
   let updated_at = account.updated_at
+  let historyRankData = account.historyRankData
   try {
     const rank = await getRank(account.address)
-    rankData = rank?.data?.[0]?.result?.data || null
+    const rankDetail = rank?.data?.[0]?.result?.data || null
+    if (rankDetail) {
+      rankData = {
+        ...rankDetail.metadata,
+        bot: rankDetail.bot,
+        rank: rankDetail.rank,
+        reward: rankDetail.reward,
+        score: rankDetail.score,
+        update_at: new Date().getTime(),
+        updated_at_str: formatTime(new Date().getTime())
+      }
+      console.log(dayjs.utc().format('MM-DD HH:mm'))
+      console.log(dayjs.utc(rankData.update_at).format('MM-DD HH:mm'))
+      console.log(dayjs.utc().isAfter(dayjs.utc(rankData.update_at), "day"))
+      if (rankData && rankData.update_at && dayjs.utc().isAfter(dayjs.utc(rankData.update_at), "day")) {
+        historyRankData = account.rankData
+      }
+
+      updated_at = new Date().getTime()
+    }
     const suinsData = await getSUINS(account.address)
     scriptLog(rank?.data)
     scriptLog(suinsData?.data)
     suins = suinsData?.data?.result?.data?.[0] || ""
-    updated_at = new Date().getTime()
   } catch (error) {
     console.log(error)
   }
-  await db.sui_quest_self.update({ _id: id }, { $set: { rankData, suins, updated_at, score: rankData?.score, rank: rankData?.rank } })
+  await db.sui_quest_self.update({ _id: id }, { $set: { rankData, historyRankData, suins, updated_at, score: rankData?.score, rank: rankData?.rank } })
   const newAccount = await db.sui_quest_self.findOne({ _id: id })
   return newAccount
 }

@@ -47,14 +47,27 @@ async function fixDatabaseFields(db, versionNumber) {
       console.error("操作失败:", err)
     }
   }
-  if (versionNumber < getVersionNumber("0.1.5")) {
-    scriptLog("修复数据库字段", "0.1.5版本暂无需修复字段")
+  if (versionNumber < getVersionNumber("0.1.12")) {
+    scriptLog("修复数据库字段", "修改查分数据结构，删除旧有数据重新查分")
+    try {
+      const suiQuestSelfData = await db.sui_quest_self.find({})
+      // 对每个文档进行处理和更新
+      for (const v of suiQuestSelfData) {
+        const update = { $unset: { rankData: true, historyRankData: true, updated_at: true } }
+        await db.sui_quest_self.update({ _id: v._id }, update)
+      }
+      console.log("所有匹配的文档都已成功更新。")
+    } catch (error) {
+      console.error("操作失败:", err)
+    }
   }
 }
 
 // 主函数
 async function main(db) {
+  // await setNewVersionTag(db, '0.1.11')
   const currentVersionTag = await getCurrentVersionTag(db)
+  console.log(currentVersionTag)
   const newVersionTag = app.getVersion() // 新版本号，通常从 package.json 或 app.getVersion() 获取
 
   if (getVersionNumber(currentVersionTag) < getVersionNumber(newVersionTag)) {
