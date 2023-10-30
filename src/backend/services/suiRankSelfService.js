@@ -63,6 +63,9 @@ export const updateRank = async (id) => {
     const rank = await getRank(account.address)
     const rankDetail = rank?.data?.[0]?.result?.data || null
     if (rankDetail) {
+      if (rankData && rankData.update_at && dayjs.utc().isAfter(dayjs.utc(rankData.update_at).subtract(1, 'hour'), "day")) {
+        historyRankData = account.rankData
+      }
       rankData = {
         ...rankDetail.metadata,
         bot: rankDetail.bot,
@@ -70,13 +73,7 @@ export const updateRank = async (id) => {
         reward: rankDetail.reward,
         score: rankDetail.score,
         update_at: new Date().getTime(),
-        updated_at_str: formatTime(new Date().getTime())
-      }
-      console.log(dayjs.utc().format('MM-DD HH:mm'))
-      console.log(dayjs.utc(rankData.update_at).format('MM-DD HH:mm'))
-      console.log(dayjs.utc().isAfter(dayjs.utc(rankData.update_at), "day"))
-      if (rankData && rankData.update_at && dayjs.utc().isAfter(dayjs.utc(rankData.update_at), "day")) {
-        historyRankData = account.rankData
+        updated_at_str: formatTime(new Date().getTime()),
       }
 
       updated_at = new Date().getTime()

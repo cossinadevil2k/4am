@@ -8,86 +8,156 @@
     </el-row>
     <el-table v-loading="loading" :data="tableData" style="width: 100%" height="100%" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55"></el-table-column>
-      <el-table-column prop="address" label="地址" min-width="120">
+      <el-table-column prop="address" label="地址" min-width="80">
         <template #default="{ row }">
           <el-button type="text" :title="row.address" @click="$copy(row.address)">{{ fmtAddr(row.address) }}</el-button>
         </template>
       </el-table-column>
-      <el-table-column prop="suins" label="域名" min-width="160"></el-table-column>
-      <el-table-column prop="name" label="总分" min-width="100">
+      <el-table-column prop="suins" label="域名" min-width="80">
         <template #default="{ row }">
-          <span v-if="row.rankData">{{ row.rankData.score }}</span>
+          {{ row.suins && row.suins.replace('.sui', '') || '-' }}
+        </template>
+      </el-table-column>
+      <el-table-column prop="score" label="总分" min-width="110">
+        <template #default="{ row }">
+          <div v-if="row.rankData" class="score-box">
+            <div>
+              <span>{{ getHistory(row, "score", false).newData }}/</span>
+              <span style="color: #ccc">{{ `${getHistory(row, "score", false).prevData}` }}</span>
+            </div>
+            <span :style="{ color: getHistory(row, 'score', false).color }">{{ `(${getHistory(row, "score", false).diff})` }}</span>
+          </div>
           <span v-else>-</span>
         </template>
       </el-table-column>
-      <el-table-column prop="rank" label="排名" min-width="60">
+      <el-table-column prop="rank" label="排名" min-width="100">
         <template #default="{ row }">
-          <span v-if="row.rankData">{{ row.rankData.rank || "N/A" }}</span>
+          <div v-if="row.rankData" class="score-box">
+            <div>
+              <span>{{ row.rankData.rank }}/</span>
+              <span style="color: #ccc">{{ `${getHistory(row, "rank", false).prevData}` }}</span>
+            </div>
+            <span :style="{ color: getHistory(row, 'rank', false).color }">{{ `(${getHistory(row, "rank", false).diff})` }}</span>
+          </div>
           <span v-else>-</span>
         </template>
       </el-table-column>
-      <el-table-column prop="DESUICOINFLIP" label="硬币" min-width="100">
+      <el-table-column prop="DESUICOINFLIP" label="硬币" min-width="90">
         <template #default="{ row }">
-          <span v-if="row.rankData && row.rankData.metadata">{{ row.rankData.metadata.DESUICOINFLIP.toFixed(2) }}</span>
+          <div v-if="row.rankData" class="score-box">
+            <div>
+              <span>{{ getHistory(row, "DESUICOINFLIP", false).newData }}/</span>
+              <span style="color: #ccc">{{ `${getHistory(row, "DESUICOINFLIP").prevData}` }}</span>
+            </div>
+            <span :style="{ color: getHistory(row, 'DESUICOINFLIP').color }">{{ `${getHistory(row, "DESUICOINFLIP").diff}` }}</span>
+          </div>
           <span v-else>-</span>
         </template>
       </el-table-column>
-      <el-table-column prop="SUILETTE" label="转盘" min-width="80">
+      <el-table-column prop="SUILETTE" label="转盘" min-width="90">
         <template #default="{ row }">
-          <span v-if="row.rankData && row.rankData.metadata">{{ row.rankData.metadata.SUILETTE.toFixed(2) }}</span>
+          <div v-if="row.rankData" class="score-box">
+            <div>
+              <span>{{ getHistory(row, "SUILETTE", false).newData }}/</span>
+              <span style="color: #ccc">{{ `${getHistory(row, "SUILETTE").prevData}` }}</span>
+            </div>
+            <span :style="{ color: getHistory(row, 'SUILETTE').color }">{{ `(${getHistory(row, "SUILETTE").diff})` }}</span>
+          </div>
           <span v-else>-</span>
         </template>
       </el-table-column>
-      <el-table-column prop="POETRY_IN_MOTION" label="诗歌" min-width="80">
+      <el-table-column prop="POETRY_IN_MOTION" label="诗歌" min-width="90">
         <template #default="{ row }">
-          <span v-if="row.rankData && row.rankData.metadata">{{ row.rankData.metadata.POETRY_IN_MOTION.toFixed(2) }}</span>
+          <div v-if="row.rankData" class="score-box">
+            <div>
+              <span>{{ getHistory(row, "POETRY_IN_MOTION", false).newData }}/</span>
+              <span style="color: #ccc">{{ `${getHistory(row, "POETRY_IN_MOTION").prevData}` }}</span>
+            </div>
+            <span :style="{ color: getHistory(row, 'POETRY_IN_MOTION').color }">{{ `(${getHistory(row, "POETRY_IN_MOTION").diff})` }}</span>
+          </div>
           <span v-else>-</span>
         </template>
       </el-table-column>
-      <el-table-column prop="THE_COLLECTION" label="绘画" min-width="80">
+      <el-table-column prop="THE_COLLECTION" label="绘画" min-width="70">
         <template #default="{ row }">
-          <span v-if="row.rankData && row.rankData.metadata">{{ row.rankData.metadata.THE_COLLECTION.toFixed(2) }}</span>
+          <div v-if="row.rankData" class="score-box">
+            <div>
+              <span>{{ getHistory(row, "THE_COLLECTION", false).newData }}/</span>
+              <span style="color: #ccc">{{ `${getHistory(row, "THE_COLLECTION").prevData}` }}</span>
+            </div>
+            <span :style="{ color: getHistory(row, 'THE_COLLECTION').color }">{{ `(${getHistory(row, "THE_COLLECTION").diff})` }}</span>
+          </div>
           <span v-else>-</span>
         </template>
       </el-table-column>
-      <el-table-column prop="RUN_LEGENDS" label="跑步" min-width="80">
+      <el-table-column prop="RUN_LEGENDS" label="跑步" min-width="110">
         <template #default="{ row }">
-          <span v-if="row.rankData && row.rankData.metadata">{{ row.rankData.metadata.RUN_LEGENDS.toFixed(2) }}</span>
+          <div v-if="row.rankData" class="score-box">
+            <div>
+              <span>{{ getHistory(row, "RUN_LEGENDS", false).newData }}/</span>
+              <span style="color: #ccc">{{ `${getHistory(row, "RUN_LEGENDS").prevData}` }}</span>
+            </div>
+            <span :style="{ color: getHistory(row, 'RUN_LEGENDS').color }">{{ `(${getHistory(row, "RUN_LEGENDS").diff})` }}</span>
+          </div>
           <span v-else>-</span>
         </template>
       </el-table-column>
-      <el-table-column prop="BUSHI" label="吃鸡" min-width="80">
+      <el-table-column prop="BUSHI" label="BUSHI" min-width="120">
         <template #default="{ row }">
-          <span v-if="row.rankData && row.rankData.metadata">{{ row.rankData.metadata.BUSHI.toFixed(2) }}</span>
+          <div v-if="row.rankData" class="score-box">
+            <div>
+              <span>{{ getHistory(row, "BUSHI", false).newData }}/</span>
+              <span style="color: #ccc">{{ `${getHistory(row, "BUSHI").prevData}` }}</span>
+            </div>
+            <span :style="{ color: getHistory(row, 'BUSHI').color }">{{ `(${getHistory(row, "BUSHI").diff})` }}</span>
+          </div>
           <span v-else>-</span>
         </template>
       </el-table-column>
-      <el-table-column prop="PANZERDOG" label="坦克" min-width="80">
+      <el-table-column prop="PANZERDOG" label="坦克" min-width="100">
         <template #default="{ row }">
-          <span v-if="row.rankData && row.rankData.metadata">{{ row.rankData.metadata.PANZERDOG.toFixed(2) }}</span>
+          <div v-if="row.rankData" class="score-box">
+            <div>
+              <span>{{ getHistory(row, "PANZERDOG", false).newData }}/</span>
+              <span style="color: #ccc">{{ `${getHistory(row, "PANZERDOG").prevData}` }}</span>
+            </div>
+            <span :style="{ color: getHistory(row, 'PANZERDOG').color }">{{ `(${getHistory(row, "PANZERDOG").diff})` }}</span>
+          </div>
           <span v-else>-</span>
         </template>
       </el-table-column>
-      <el-table-column prop="HAS_SUINS" label="域名" min-width="80">
+      <!-- <el-table-column prop="HAS_SUINS" label="域名" min-width="120">
         <template #default="{ row }">
           <span v-if="row.rankData && row.rankData.metadata">{{ row.rankData.metadata.HAS_SUINS }}</span>
           <span v-else>-</span>
         </template>
-      </el-table-column>
-      <el-table-column prop="WORLDS_BEYOND" label="WORLDS_BEYOND" min-width="150">
+      </el-table-column> -->
+      <el-table-column prop="WORLDS_BEYOND" label="WB" min-width="120">
         <template #default="{ row }">
-          <span v-if="row.rankData && row.rankData.metadata">{{ row.rankData.metadata.WORLDS_BEYOND.toFixed(2) }}</span>
+          <div v-if="row.rankData" class="score-box">
+            <div>
+              <span>{{ getHistory(row, "WORLDS_BEYOND", false).newData }}/</span>
+              <span style="color: #ccc">{{ `${getHistory(row, "WORLDS_BEYOND").prevData}` }}</span>
+            </div>
+            <span :style="{ color: getHistory(row, 'WORLDS_BEYOND').color }">{{ `(${getHistory(row, "WORLDS_BEYOND").diff})` }}</span>
+          </div>
           <span v-else>-</span>
         </template>
       </el-table-column>
-      <el-table-column prop="ARCADE_CHAMPION" label="ARCADE_CHAMPION" min-width="170">
+      <el-table-column prop="ARCADE_CHAMPION" label="街机" min-width="100">
         <template #default="{ row }">
-          <span v-if="row.rankData && row.rankData.metadata">{{ row.rankData.metadata.ARCADE_CHAMPION.toFixed(2) }}</span>
+          <div v-if="row.rankData" class="score-box">
+            <div>
+              <span>{{ getHistory(row, "ARCADE_CHAMPION", false).newData }}/</span>
+              <span style="color: #ccc">{{ `${getHistory(row, "ARCADE_CHAMPION").prevData}` }}</span>
+            </div>
+            <span :style="{ color: getHistory(row, 'ARCADE_CHAMPION').color }">{{ `(${getHistory(row, "ARCADE_CHAMPION").diff})` }}</span>
+          </div>
           <span v-else>-</span>
         </template>
       </el-table-column>
-      <el-table-column prop="updated_at" label="更新时间" min-width="160"> </el-table-column>
-      <el-table-column prop="remark" label="备注" min-width="160"> </el-table-column>
+      <el-table-column prop="updated_at" label="更新时间" min-width="100"> </el-table-column>
+      <el-table-column prop="remark" label="备注" min-width="60"> </el-table-column>
       <!-- <el-table-column prop="created_at" label="创建时间" min-width="140"></el-table-column> -->
       <el-table-column prop="operate" label="操作" min-width="120">
         <template #default="{ row }">
@@ -143,6 +213,18 @@ export default {
     this.getList()
   },
   methods: {
+    getHistory(row, key, isFloat = true) {
+      const newData = row?.rankData?.[key] || 0
+      const prevData = row?.historyRankData?.[key] || 0
+      const diff = Math.abs(newData - prevData)
+      const color = newData - prevData >= 0 ? "red" : "green"
+      return {
+        newData: newData.toFixed(0),
+        prevData: isFloat ? prevData?.toFixed(0) : prevData.toFixed(0),
+        diff: `${newData - prevData >= 0 ? "+" : "-"}${isFloat ? diff.toFixed(0) : diff.toFixed(0)}`,
+        color,
+      }
+    },
     async importDb() {
       await importDb()
       this.getList()
@@ -151,8 +233,8 @@ export default {
       await exportDb()
     },
     fmtAddr(address) {
-      const middle = address.slice(8, -4)
-      return address.replace(middle, "****")
+      const middle = address.slice(3, -4)
+      return address.replace(middle, "**")
     },
     async getList() {
       const { currentPage, pageSize } = this.pageInfo
@@ -168,7 +250,10 @@ export default {
       this.$refs.addDialog.open(oldForm)
     },
     async updateRank(row) {
-      await updateRank({ id: row.id })
+      row.loading = true
+      await updateRank({ id: row.id }).finally(() => {
+        row.loading = false
+      })
       await this.getList()
     },
     async batchUpdate() {
@@ -276,5 +361,12 @@ export default {
     display: flex;
     justify-content: space-between;
   }
+}
+.score-box {
+  display: flex;
+  flex-direction: column;
+}
+::v-deep .el-table .cell {
+  font-size: 12px;
 }
 </style>

@@ -1,26 +1,25 @@
 import db from "@/db"
 import dayjs from "dayjs"
+import utc from "dayjs/plugin/utc"
 import { getRank, getSUINS } from "@/api/quest3"
 import { scriptLog } from "@/utils/log"
 import { dialog } from "electron"
 import fs from "fs"
 import { $page } from "@/utils/curd"
-export const batchAdd = async (addressList) => {
-  let count = 0
+dayjs.extend(utc)
+export const batchImport = async (addressList, remark, bgColor) => {
   for (let address of addressList) {
     try {
-      await addAccount(address, null, true)
-      count++
+      await addAccount(address, remark, bgColor, true)
     } catch (error) {
       console.log(error)
     }
   }
-  scriptLog(`抓到${count}个赌狗`)
 }
 
-export const addAccount = async (address, remark, dontGetRank = false) => {
+export const addAccount = async (address, remark, bgColor, dontGetRank = false) => {
   const res = await db.sui_quest.findOne({ address })
-  const newAddress = { address, remark, created_at: new Date().getTime(), updated_at: new Date().getTime() }
+  const newAddress = { address, remark, bgColor, created_at: new Date().getTime(), updated_at: new Date().getTime() }
   let rankData = null
   if (res) {
     throw new Error("address already exists")
@@ -50,8 +49,8 @@ export const getAccountByEmail = async (email) => {
   return formatAccount(account)
 }
 
-export const updateAccount = async (id, remark) => {
-  const updatedEmail = { remark, updated_at: new Date() }
+export const updateAccount = async (id, remark, bgColor) => {
+  const updatedEmail = { remark, bgColor }
   await db.sui_quest.update({ _id: id }, { $set: updatedEmail })
 }
 export const updateRank = async (id) => {
@@ -59,18 +58,34 @@ export const updateRank = async (id) => {
   let rankData = account.rankData
   let suins = account.suins
   let updated_at = account.updated_at
+  let historyRankData = account.historyRankData
   try {
     const rank = await getRank(account.address)
-    rankData = rank?.data?.[0]?.result?.data || null
+    const rankDetail = rank?.data?.[0]?.result?.data || null
+    if (rankDetail) {
+      if (rankData && rankData.update_at && dayjs.utc().isAfter(dayjs.utc(rankData.update_at).subtract(1, "hour"), "day")) {
+        historyRankData = account.rankData
+      }
+      rankData = {
+        ...rankDetail.metadata,
+        bot: rankDetail.bot,
+        rank: rankDetail.rank,
+        reward: rankDetail.reward,
+        score: rankDetail.score,
+        update_at: new Date().getTime(),
+        updated_at_str: formatTime(new Date().getTime()),
+      }
+
+      updated_at = new Date().getTime()
+    }
     const suinsData = await getSUINS(account.address)
     scriptLog(rank?.data)
     scriptLog(suinsData?.data)
     suins = suinsData?.data?.result?.data?.[0] || ""
-    updated_at = new Date().getTime()
   } catch (error) {
     console.log(error)
   }
-  await db.sui_quest.update({ _id: id }, { $set: { rankData, suins, updated_at, score: rankData?.score, rank: rankData?.rank } })
+  await db.sui_quest.update({ _id: id }, { $set: { rankData, historyRankData, suins, updated_at, score: rankData?.score, rank: rankData?.rank } })
   const newAccount = await db.sui_quest.findOne({ _id: id })
   return newAccount
 }
@@ -94,7 +109,7 @@ export const getAccounts = async ({ currentPage, pageSize, query, sort = { score
 
   return { list: formattedList, pageInfo }
 }
-const formatTime = (timeStmp, fmt = "MM-DD HH:mm") => {
+const formatTime = (timeStmp, fmt = "MM/DD/HH:mm") => {
   if (!timeStmp) return ""
   return dayjs(timeStmp).format(fmt)
 }
