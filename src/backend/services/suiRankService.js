@@ -55,6 +55,10 @@ export const updateAccount = async (id, remark, bgColor) => {
 }
 export const updateRank = async (id) => {
   const account = await db.sui_quest.findOne({ _id: id })
+  await _updateRank(account)
+  return await db.sui_quest.findOne({ _id: id })
+}
+const _updateRank = async (account) => {
   let rankData = account.rankData
   let suins = account.suins
   let updated_at = account.updated_at
@@ -77,17 +81,61 @@ export const updateRank = async (id) => {
       }
 
       updated_at = new Date().getTime()
+      scriptLog(
+        `更新${account.address.replace(account.address.slice(8, -4), "**")}成功，更新前分数：${account.score}, 更新后分数：${rankData?.score}, 更新前排名: ${account.rank}, 更新后排名： ${
+          rankData?.rank
+        }`
+      )
+    } else {
+      scriptLog(`更新${account.address}失败`)
     }
     const suinsData = await getSUINS(account.address)
-    scriptLog(rank?.data)
-    scriptLog(suinsData?.data)
     suins = suinsData?.data?.result?.data?.[0] || ""
   } catch (error) {
     console.log(error)
+    scriptLog(`更新${account.address}失败`)
   }
-  await db.sui_quest.update({ _id: id }, { $set: { rankData, historyRankData, suins, updated_at, score: rankData?.score, rank: rankData?.rank } })
-  const newAccount = await db.sui_quest.findOne({ _id: id })
-  return newAccount
+  await db.sui_quest.update({ _id: account._id }, { $set: { rankData, historyRankData, suins, updated_at, score: rankData?.score, rank: rankData?.rank } })
+}
+export const updateRankAll = async () => {
+  scriptLog(`开始全量更新,共${index}条...`)
+  const accounts = await db.sui_quest.find({})
+  const maxConcurrentRequests = 5 // 同时运行的最大请求数量
+  let activeRequests = 0 // 当前活跃的请求数量
+  let index = 0 // 当前处理到的数组索引
+
+  const handleRequest = async (account) => {
+    try {
+      account.loading = true
+      await _updateRank(account)
+    } catch (error) {
+      console.log(error)
+    } finally {
+      account.loading = false
+      activeRequests-- // 完成一个请求后，活跃请求数量减1
+    }
+  }
+
+  const loop = async () => {
+    while (index < accounts.length) {
+      if (activeRequests < maxConcurrentRequests) {
+        activeRequests++
+        scriptLog(`开始更新第${index + 1}条, 剩余${accounts.length - index - 1}条`)
+        handleRequest(accounts[index])
+        index++
+      } else {
+        await new Promise((resolve) => setTimeout(resolve, 100)) // 等待一下再检查
+      }
+    }
+  }
+
+  await loop()
+
+  // 等待所有请求完成
+  while (activeRequests > 0) {
+    await new Promise((resolve) => setTimeout(resolve, 100))
+  }
+  scriptLog(`${index}条数据更新完成`)
 }
 export const deleteAccount = async (ids) => {
   const result = await db.sui_quest.remove({ _id: { $in: ids } }, { multi: true })

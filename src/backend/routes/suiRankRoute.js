@@ -5,6 +5,7 @@ export default function (router) {
   router.get("/suiRank/detail/:id", suiRankController.getAccount)
   router.post("/suiRank/update", suiRankController.updateAccount)
   router.post("/suiRank/updateRank", suiRankController.updateRank)
+  router.get("/suiRank/updateRankAll", suiRankController.updateRankAll)
   router.post("/suiRank/remove", suiRankController.deleteAccount)
   router.get("/suiRank/list", suiRankController.getAccountList)
   router.get("/suiRank/exportDb", suiRankController.exportDb)

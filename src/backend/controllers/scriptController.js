@@ -1,12 +1,14 @@
 import { runScript as runScriptService, stopScript as stopScriptService } from "@/services/scriptService"
+import * as responseCodes from "@/constants/responseCodes"
+
 // 运行脚本
 export async function runScript(req, res) {
   const { name, id, params } = req.body
   try {
-    const output = await runScriptService(name, id, params)
-    res.json({ success: true, output })
+    const data = await runScriptService(name, id, params)
+    res.json({ code: responseCodes.SUCCESS, message: "success", data })
   } catch (error) {
-    res.json({ success: false, error: error.message })
+    res.json({ code: responseCodes.INTERNAL_SERVER_ERROR, error: error.message })
   }
 }
 // 停止脚本

@@ -34,6 +34,10 @@ export const updateRank = async (req, res) => {
   const data = await suiRankService.updateRank(id)
   res.json({ code: responseCodes.SUCCESS, message: "updated successfully", data })
 }
+export const updateRankAll = async (req, res) => {
+  const data = await suiRankService.updateRankAll()
+  res.json({ code: responseCodes.SUCCESS, message: "updated successfully", data })
+}
 export const deleteAccount = async (req, res) => {
   const { ids } = req.body
   if (!ids || ids.length === 0) {

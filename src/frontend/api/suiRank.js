@@ -34,6 +34,13 @@ export function updateRank(data) {
     data,
   })
 }
+// 全量更新rank
+export function updateRankAll() {
+  return http({
+    url: `/suiRank/updateRankAll`,
+    method: "get",
+  })
+}
 
 // 删除数据
 export function remove(data) {

@@ -5,11 +5,10 @@
         <el-option v-for="item in groupList" :key="item.id" :label="item.groupName" :value="item.id"> </el-option>
       </el-select>
       <el-button type="primary" size="mini" @click="getList" title="刷新列表">查询</el-button>
-      <el-button type="primary" size="mini" @click="start('test2')" title="刷新列表">测试2</el-button>
-      <el-button type="primary" size="mini" @click="start('test')" title="刷新列表">测试</el-button>
-      <el-button type="primary" size="mini" @click="stop" title="刷新列表">停止</el-button>
+      <!-- <el-button type="primary" size="mini" @click="stop" title="刷新列表">停止</el-button> -->
     </el-row>
-    <el-table v-loading="loading" :data="tableData" style="width: 100%" height="100%">
+    <el-table v-loading="loading" :data="tableData" style="width: 100%" height="100%" @selection-change="handleSelectionChange">
+      <el-table-column type="selection" width="55"></el-table-column>
       <el-table-column prop="seq" label="序号" width="140"> </el-table-column>
       <el-table-column prop="groupName" label="分组" width="140"> </el-table-column>
       <el-table-column prop="name" label="名称" width="140"> </el-table-column>
@@ -23,12 +22,16 @@
         <template #default="{ row }">
           <el-button type="text" size="mini" @click="openSendSetting(row, 'sendToChild')">分水</el-button>
           <el-button type="text" size="mini" @click="openSendSetting(row, 'sendToFather')">集水</el-button>
-          <el-button type="text" size="mini" @click="exportWallet(row)">导出钱包地址</el-button>
-          <el-button type="text" size="mini" @click="sui2(row)">Sui2期取货</el-button>
+          <!-- <el-button type="text" size="mini" @click="exportWallet(row)">导出钱包地址</el-button> -->
+          <!-- <el-button type="text" size="mini" @click="sui2(row)">Sui2期取货</el-button> -->
         </template>
       </el-table-column>
     </el-table>
     <Amount ref="amount" @submit="sendToFather"></Amount>
+    <template slot="footer-left">
+      <el-button type="primary" :disabled="!selected.length" :loading="creatLoading" @click="sui3Create" size="small">批量创建钱包</el-button>
+      <el-button type="primary" :disabled="!selected.length" :loading="inviteLoading" @click="sui3Invite" size="small">批量邀请</el-button>
+    </template>
     <el-pagination
       slot="footer-right"
       @size-change="handleSizeChange"
@@ -62,8 +65,11 @@ export default {
         pageSize: 20,
         total: 0,
       },
+      selected: [],
       loading: false,
       id: uuid(),
+      creatLoading: false,
+      inviteLoading: false,
     }
   },
   computed: {
@@ -74,6 +80,10 @@ export default {
     this.getGroup()
   },
   methods: {
+    handleSelectionChange(selection) {
+      // selection 是选中的行信息数组
+      this.selected = selection // 假设 id 是邮箱的唯一标识符
+    },
     stop() {
       stopScript(this.id)
     },
@@ -116,6 +126,34 @@ export default {
       console.log(`当前页: ${val}`)
       this.pageInfo.currentPage = val
       this.getList()
+    },
+    sui3Invite() {
+      if (!this.setting.password) return this.$message.error("请先设置密码")
+      this.inviteLoading = true
+      runScript({
+        name: "sui3Invite",
+        id: uuid(),
+        params: {
+          windows: this.selected,
+          password: this.setting.password,
+        },
+      }).finally(() => {
+        this.inviteLoading = false
+      })
+    },
+    sui3Create() {
+      if (!this.setting.password) return this.$message.error("请先设置密码")
+      this.creatLoading = true
+      runScript({
+        name: "sui3CreateAccount",
+        id: uuid(),
+        params: {
+          windows: this.selected,
+          password: this.setting.password,
+        },
+      }).finally(() => {
+        this.creatLoading = false
+      })
     },
     exportWallet(row) {
       if (!this.setting.password) return this.$message.error("请先设置密码")

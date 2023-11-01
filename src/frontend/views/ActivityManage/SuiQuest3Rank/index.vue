@@ -15,7 +15,7 @@
       </el-table-column>
       <el-table-column prop="suins" label="域名" min-width="80">
         <template #default="{ row }">
-          {{ row.suins && row.suins.replace('.sui', '') || '-' }}
+          {{ (row.suins && row.suins.replace(".sui", "")) || "-" }}
         </template>
       </el-table-column>
       <el-table-column prop="score" label="总分" min-width="110">
@@ -169,7 +169,8 @@
     </el-table>
     <AddDialog ref="addDialog" @success="getList"></AddDialog>
     <template slot="footer-left">
-      <el-button type="primary" :loading="batchRunLoading" @click="batchUpdate" :disabled="!selectedEmails.length" size="small">批量更新</el-button>
+      <el-button type="primary" :loading="allRunLoading" @click="allUpdate" size="small">全量更新</el-button>
+      <el-button type="primary" :loading="batchRunLoading" @click="batchUpdate" :disabled="!selectedEmails.length || allRunLoading" size="small">批量更新</el-button>
       <el-button type="danger" @click="batchDelete" :disabled="!selectedEmails.length" size="small">批量删除</el-button>
     </template>
     <el-pagination
@@ -188,7 +189,7 @@
 <script>
 import { mapState } from "vuex"
 import AddDialog from "./Dialog/addDialog.vue"
-import { list, updateRank, remove, exportDb, importDb } from "@/api/suiRank"
+import { list, updateRank, updateRankAll, remove, exportDb, importDb } from "@/api/suiRank"
 export default {
   components: { AddDialog },
   data() {
@@ -204,6 +205,7 @@ export default {
       },
       loading: false,
       batchRunLoading: false,
+      allRunLoading: false,
     }
   },
   computed: {
@@ -255,6 +257,14 @@ export default {
         row.loading = false
       })
       await this.getList()
+    },
+    async allUpdate() {
+      await this.$confirm(`全量更新大约需要${parseInt(this.pageInfo.total / 3)}秒`)
+      this.allRunLoading = true
+      await updateRankAll().finally(() => {
+        this.allRunLoading = false
+      })
+      this.getList()
     },
     async batchUpdate() {
       this.batchRunLoading = true
