@@ -29,6 +29,7 @@
     </el-table>
     <Amount ref="amount" @submit="sendToFather"></Amount>
     <template slot="footer-left">
+      <el-button type="primary" :disabled="!selected.length" :loading="exportLoading" @click="exportWallet" size="small">批量导出钱包</el-button>
       <el-button type="primary" :disabled="!selected.length" :loading="creatLoading" @click="sui3Create" size="small">批量创建钱包</el-button>
       <el-button type="primary" :disabled="!selected.length" :loading="inviteLoading" @click="sui3Invite" size="small">批量邀请</el-button>
     </template>
@@ -70,6 +71,7 @@ export default {
       id: uuid(),
       creatLoading: false,
       inviteLoading: false,
+      exportLoading: false,
     }
   },
   computed: {
@@ -129,16 +131,41 @@ export default {
     },
     sui3Invite() {
       if (!this.setting.password) return this.$message.error("请先设置密码")
-      this.inviteLoading = true
+      this.$prompt("请输入邀请链接", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+      }).then(async ({ value }) => {
+        if (!value) return this.$message.error("邀请链接不能为空")
+        await bitApi.updateBrowserMemark(
+          value,
+          this.selected.map((v) => v.id)
+        )
+        // this.inviteLoading = true
+        runScript({
+          name: "sui3Invite",
+          id: uuid(),
+          params: {
+            windows: this.selected.map((v) => ({ id: v.id, name: v.name })),
+            link: value,
+            password: this.setting.password,
+          },
+        }).finally(() => {
+          // this.inviteLoading = false
+        })
+      })
+    },
+    exportWallet() {
+      if (!this.setting.password) return this.$message.error("请先设置密码")
+      this.exportLoading = true
       runScript({
-        name: "sui3Invite",
+        name: "exportWallet",
         id: uuid(),
         params: {
-          windows: this.selected,
+          windows: this.selected.map((v) => ({ id: v.id, name: v.name })),
           password: this.setting.password,
         },
       }).finally(() => {
-        this.inviteLoading = false
+        this.exportLoading = false
       })
     },
     sui3Create() {
@@ -148,30 +175,29 @@ export default {
         name: "sui3CreateAccount",
         id: uuid(),
         params: {
-          windows: this.selected,
+          windows: this.selected.map((v) => ({ id: v.id, name: v.name })),
           password: this.setting.password,
         },
       }).finally(() => {
         this.creatLoading = false
       })
     },
-    exportWallet(row) {
-      if (!this.setting.password) return this.$message.error("请先设置密码")
-      this.$ipc.send("export-wallet", row.id, this.setting.password) // 导出钱包
-    },
     openSendSetting(row, type = "sendToChild") {
       if (!this.setting.password) return this.$message.error("请先设置密码")
-      this.$refs.amount.open(row.id, this.setting.password, type)
+      this.$refs.amount.open(row.id, this.setting.password, type, row.name)
     },
     sendToFather(row, name) {
       const id = uuid()
+      console.log(row, "row")
       runScript({
         name,
         id,
         params: {
           id: row.id,
+          name: row.name,
           password: row.password,
-          amount: row.max ? Infinity : row.amount,
+          max: row.max,
+          amount: row.amount,
         },
       })
     },

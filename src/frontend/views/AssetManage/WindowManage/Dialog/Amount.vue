@@ -36,12 +36,13 @@ export default {
     }
   },
   methods: {
-    open(id, password, type) {
+    open(id, password, type, name) {
       this.dialogFormVisible = true;
       this.type = type
       this.form = {
         ...this.form,
         id,
+        name,
         password,
       };
     },

@@ -72,3 +72,11 @@ export function importDb() {
     method: "get",
   })
 }
+// 批量新增
+export function batchImport(data) {
+  return http({
+    url: `/suiRank/batchImport`,
+    method: "post",
+    data
+  })
+}

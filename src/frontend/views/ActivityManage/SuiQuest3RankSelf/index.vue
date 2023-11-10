@@ -1,13 +1,21 @@
 <template>
   <PageCard>
     <el-row slot="header-right">
+      查176000
+      <el-switch v-model="serachForm.realRank" style="margin-right: 10px"></el-switch>
+      查合格号
+      <el-switch v-model="serachForm.searchRank" style="margin-right: 10px"></el-switch>
+      查补分号
+      <el-switch v-model="serachForm.searchNoRank" style="margin-right: 10px"></el-switch>
+      查runlegend  
+      <el-switch v-model="serachForm.runlegendata" style="margin-right: 10px"></el-switch>
       <el-button type="primary" size="mini" @click="importDb">导入</el-button>
       <el-button type="primary" size="mini" @click="exportDb">导出</el-button>
       <el-button type="primary" size="mini" @click="getList" title="刷新列表">查询</el-button>
       <el-button type="primary" size="mini" @click="openAccountDialog" title="新增账号">新增</el-button>
       <el-button type="primary" size="mini" @click="() => $refs.addMultiDialog.open()" title="批量新增">批量新增</el-button>
     </el-row>
-    <el-table v-loading="loading" :data="tableData" style="width: 100%" height="100%" @selection-change="handleSelectionChange" :row-style="getRowStyle">
+    <el-table v-loading="loading" :data="tableData" style="width: 100%" height="100%" @selection-change="handleSelectionChange" @sort-change="handleSortChange" :row-style="getRowStyle">
       <el-table-column type="selection" width="55"></el-table-column>
       <el-table-column prop="address" label="地址" min-width="80">
         <template #default="{ row }">
@@ -15,7 +23,7 @@
         </template>
       </el-table-column>
       <!-- <el-table-column prop="suins" label="域名" min-width="160"></el-table-column> -->
-      <el-table-column prop="score" label="总分" min-width="110">
+      <el-table-column sortable="custom" prop="score" label="总分" min-width="110">
         <template #default="{ row }">
           <div v-if="row.rankData" class="score-box">
             <div>
@@ -167,15 +175,18 @@
     <AddDialog ref="addDialog" @success="getList"></AddDialog>
     <AddMultiDialog ref="addMultiDialog" @success="getList"></AddMultiDialog>
     <template slot="footer-left">
+      <el-button type="primary" :loading="allRunLoading" @click="allUpdate" size="small">全量更新</el-button>
       <el-button type="primary" :loading="batchRunLoading" @click="batchUpdate" :disabled="!selectedEmails.length" size="small">批量更新</el-button>
       <el-button type="danger" @click="batchDelete" :disabled="!selectedEmails.length" size="small">批量删除</el-button>
+      <el-button type="primary" @click="runLengendExport" size="small">导出runlegend地址</el-button>
+      <el-button type="primary" @click="exportAddress" :disabled="!selectedEmails.length" size="small">导出已选地址</el-button>
     </template>
     <el-pagination
       slot="footer-right"
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
       :current-page="pageInfo.currentPage"
-      :page-sizes="[20, 50, 100, 200, 500]"
+      :page-sizes="[20, 50, 100, 200, 500, 4000]"
       :page-size="pageInfo.pageSize"
       layout="total, sizes, prev, pager, next, jumper"
       :total="pageInfo.total"
@@ -187,7 +198,7 @@
 import { mapState } from "vuex"
 import AddDialog from "./Dialog/addDialog.vue"
 import AddMultiDialog from "./Dialog/addMultiDialog.vue"
-import { list, updateRank, remove, exportDb, importDb } from "@/api/suiRankSelf"
+import { list, updateRank, remove, exportDb, importDb, runLengendExport, updateRankAll } from "@/api/suiRankSelf"
 export default {
   components: { AddDialog, AddMultiDialog },
   data() {
@@ -203,6 +214,7 @@ export default {
       },
       loading: false,
       batchRunLoading: false,
+      allRunLoading: false,
     }
   },
   computed: {
@@ -224,11 +236,18 @@ export default {
         color,
       }
     },
+    runLengendExport() {
+      runLengendExport()
+    },
     getRowStyle({ row }) {
-      console.log(row)
       return {
         background: row.bgColor || "",
       }
+    },
+    exportAddress(){
+      const str = this.selectedEmails.map(v => v.address)
+      this.$copy(str.join("\r\n"))
+      this.$message.success("复制成功!")
     },
     async importDb() {
       await importDb()
@@ -237,6 +256,14 @@ export default {
     async exportDb() {
       await exportDb()
     },
+    async allUpdate() {
+      await this.$confirm(`全量更新大约需要${parseInt(this.pageInfo.total / 3)}秒`)
+      this.allRunLoading = true
+      await updateRankAll().finally(() => {
+        this.allRunLoading = false
+      })
+      this.getList()
+    },
     fmtAddr(address) {
       const middle = address.slice(3, -4)
       return address.replace(middle, "**")
@@ -244,7 +271,7 @@ export default {
     async getList() {
       const { currentPage, pageSize } = this.pageInfo
       this.loading = true
-      const res = await list({ currentPage, pageSize }).finally(() => {
+      const res = await list({ currentPage, pageSize, ...this.serachForm }).finally(() => {
         this.loading = false
       })
       this.tableData = res.data.list.map((v) => ({ ...v, loading: false }))
@@ -324,6 +351,19 @@ export default {
       this.$message.success("删除成功")
       this.getList()
       this.selectedEmails = [] // 清空选中的邮箱数组
+    },
+    handleSortChange({ column, prop, order }) {
+      console.log(column, prop, order)
+      this.serachForm = {
+        ...this.serachForm,
+        sort: {
+          [prop]: [null, "ascending"].indexOf(order),
+        },
+      }
+      if (order === null) {
+        delete this.serachForm.sort
+      }
+      this.getList()
     },
     handleSelectionChange(selection) {
       // selection 是选中的行信息数组

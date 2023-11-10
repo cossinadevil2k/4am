@@ -10,4 +10,6 @@ export default function (router) {
   router.get("/suiRank/list", suiRankController.getAccountList)
   router.get("/suiRank/exportDb", suiRankController.exportDb)
   router.get("/suiRank/importDb", suiRankController.importDb)
+  router.post("/suiRank/batchImport", suiRankController.batchImport)
+
 }

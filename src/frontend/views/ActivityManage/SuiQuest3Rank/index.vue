@@ -5,6 +5,7 @@
       <el-button type="primary" size="mini" @click="exportDb">导出</el-button>
       <el-button type="primary" size="mini" @click="getList" title="刷新列表">查询</el-button>
       <el-button type="primary" size="mini" @click="openAccountDialog" title="新增账号">新增</el-button>
+      <el-button type="primary" size="mini" @click="() => $refs.addMultiDialog.open()" title="批量新增">批量新增</el-button>
     </el-row>
     <el-table v-loading="loading" :data="tableData" style="width: 100%" height="100%" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55"></el-table-column>
@@ -38,6 +39,18 @@
               <span style="color: #ccc">{{ `${getHistory(row, "rank", false).prevData}` }}</span>
             </div>
             <span :style="{ color: getHistory(row, 'rank', false).color }">{{ `(${getHistory(row, "rank", false).diff})` }}</span>
+          </div>
+          <span v-else>-</span>
+        </template>
+      </el-table-column>
+      <el-table-column prop="REFERRAL_POINTS_ELIGIBLE_SUM" label="邀请" min-width="90">
+        <template #default="{ row }">
+          <div v-if="row.rankData" class="score-box">
+            <div>
+              <span>{{ getHistory(row, "REFERRAL_POINTS_ELIGIBLE_SUM", false).newData }}/</span>
+              <span style="color: #ccc">{{ `${getHistory(row, "REFERRAL_POINTS_ELIGIBLE_SUM").prevData}` }}</span>
+            </div>
+            <span :style="{ color: getHistory(row, 'REFERRAL_POINTS_ELIGIBLE_SUM').color }">{{ `${getHistory(row, "REFERRAL_POINTS_ELIGIBLE_SUM").diff}` }}</span>
           </div>
           <span v-else>-</span>
         </template>
@@ -168,9 +181,13 @@
       </el-table-column>
     </el-table>
     <AddDialog ref="addDialog" @success="getList"></AddDialog>
+    <AddMultiDialog ref="addMultiDialog" @success="getList"></AddMultiDialog>
+
     <template slot="footer-left">
       <el-button type="primary" :loading="allRunLoading" @click="allUpdate" size="small">全量更新</el-button>
       <el-button type="primary" :loading="batchRunLoading" @click="batchUpdate" :disabled="!selectedEmails.length || allRunLoading" size="small">批量更新</el-button>
+      <el-button type="primary" @click="exportLink" :disabled="!selectedEmails.length" size="small">导出邀请链接</el-button>
+      <el-button type="primary" @click="exportAddress" :disabled="!selectedEmails.length" size="small">导出已选地址</el-button>
       <el-button type="danger" @click="batchDelete" :disabled="!selectedEmails.length" size="small">批量删除</el-button>
     </template>
     <el-pagination
@@ -189,9 +206,10 @@
 <script>
 import { mapState } from "vuex"
 import AddDialog from "./Dialog/addDialog.vue"
+import AddMultiDialog from "./Dialog/addMultiDialog.vue"
 import { list, updateRank, updateRankAll, remove, exportDb, importDb } from "@/api/suiRank"
 export default {
-  components: { AddDialog },
+  components: { AddDialog, AddMultiDialog },
   data() {
     return {
       tableData: [],
@@ -247,6 +265,16 @@ export default {
       this.tableData = res.data.list.map((v) => ({ ...v, loading: false }))
       console.log(this.pageInfo, res)
       this.pageInfo.total = res.data.pageInfo.total
+    },
+    exportLink() {
+      const str = this.selectedEmails.map((v) => `http://quests.mystenlabs.com/referrals/${v.address}`)
+      this.$copy(str.join("\r\n"))
+      this.$message.success("复制成功！")
+    },
+    exportAddress(){
+      const str = this.selectedEmails.map(v => v.address)
+      this.$copy(str.join("\r\n"))
+      this.$message.success("复制成功!")
     },
     async openAccountDialog(oldForm) {
       this.$refs.addDialog.open(oldForm)

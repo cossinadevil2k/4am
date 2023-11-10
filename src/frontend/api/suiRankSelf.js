@@ -1,11 +1,11 @@
 import http from "@/utils/http"
 
 // 获取列表数据
-export function list(params) {
+export function list(data) {
   return http({
     url: `/suiRankSelf/list`,
-    method: "get",
-    params,
+    method: "post",
+    data,
   })
 }
 
@@ -34,7 +34,13 @@ export function updateRank(data) {
     data,
   })
 }
-
+// 全量更新rank
+export function updateRankAll() {
+  return http({
+    url: `/suiRankSelf/updateRankAll`,
+    method: "get",
+  })
+}
 // 删除数据
 export function remove(data) {
   return http({
@@ -70,6 +76,13 @@ export function batchImport(data) {
   return http({
     url: `/suiRankSelf/batchImport`,
     method: "post",
-    data
+    data,
+  })
+}
+// 导出runlengend地址
+export function runLengendExport() {
+  return http({
+    url: `/suiRankSelf/runLengendExport`,
+    method: "get",
   })
 }

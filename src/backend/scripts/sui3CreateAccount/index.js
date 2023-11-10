@@ -24,6 +24,7 @@ async function main(stopEvent, { windows, password }) {
           type: "box",
           width: 380,
           height: 840,
+          col: 5
         })
       }, 2000)
     }

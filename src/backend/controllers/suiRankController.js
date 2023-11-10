@@ -13,7 +13,18 @@ export const createAccount = async (req, res) => {
     res.json({ code: responseCodes.INTERNAL_SERVER_ERROR, message: error.message, data: null })
   }
 }
-
+export const batchImport = async (req, res) => {
+  try {
+    const { address, remark = "", bgColor = "" } = req.body
+    if (!address || !address.length) {
+      return res.status(responseCodes.BAD_REQUEST).json({ code: responseCodes.BAD_REQUEST, message: "address are required", data: null })
+    }
+    const emailRecord = await suiRankService.batchImport(address, remark, bgColor)
+    res.json({ code: responseCodes.SUCCESS, message: "address created successfully", data: emailRecord })
+  } catch (error) {
+    res.json({ code: responseCodes.INTERNAL_SERVER_ERROR, message: error.message, data: null })
+  }
+}
 export const getAccount = async (req, res) => {
   const id = req.params.id
   const email = await suiRankService.getAccountById(id)

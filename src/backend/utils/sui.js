@@ -1,19 +1,19 @@
 import { sleep } from "./index"
-import { findElementByTypeAndText, scrollIntoView } from "./index"
+import { findElementByTypeAndText, scrollIntoView, findAndClick } from "./index"
 import { clipboard } from "electron"
 import { scriptLog } from "./log"
 // 登录
 export async function login(browser, password) {
   const page = await browser.newPage()
-  await page.goto("chrome-extension://opcgpfmipidbgpenhmajoajpbobppdil/ui.html#/tokens?menu=/accounts", { waitUntil: "networkidle0" })
+  await page.goto("chrome-extension://opcgpfmipidbgpenhmajoajpbobppdil/ui.html#/tokens?menu=/accounts", { waitUntil: "networkidle2" })
   // const title = await page.$eval("h6", (el) => el.innerText);
   // if (title === "Accounts") return page;
-  await sleep(1000)
+  await sleep(500)
   const psw = await page.$("input[type='password']")
   const submit = await page.$("button[type='submit']")
   if (!psw) return page
   await psw.type(password)
-  await sleep(500)
+  await sleep(200)
   await scrollIntoView(page, submit)
   await sleep(200)
   await submit.click()
@@ -73,18 +73,20 @@ export async function send(browser, address, amount) {
 // 断开连接
 export async function disconnect(browser, name) {
   const suiPage = await browser.newPage()
-  await suiPage.goto("chrome-extension://opcgpfmipidbgpenhmajoajpbobppdil/ui.html#/apps/connected", { waitUntil: "networkidle0" })
+  await suiPage.goto("chrome-extension://opcgpfmipidbgpenhmajoajpbobppdil/ui.html#/apps/connected", { waitUntil: "networkidle2" })
   const btn = await findElementByTypeAndText(suiPage, name, "div[role='button']")
   // 滚动到元素位置,防止不在视口内点击无效
   if (btn) {
     // 使用 page.evaluate 来执行 JavaScript 滚动操作
     await suiPage.evaluate((element) => {
+      if (!element) return
       element.scrollIntoView({ block: "center" })
     }, btn)
     await btn.click()
     await sleep(1000)
     const disconnect = await findElementByTypeAndText(suiPage, "Disconnect", "button")
-    await disconnect.click()
+    await suiPage.evaluate((el) => el.click(), disconnect)
+    // await disconnect.click()
     await sleep(500)
   } else {
     scriptLog("动作: 断开连接, 问题: 未找到对应元素")
@@ -95,16 +97,26 @@ export async function disconnect(browser, name) {
 export async function switchAccount(browser, idx) {
   const suiPage = await browser.newPage()
   await suiPage.goto("chrome-extension://opcgpfmipidbgpenhmajoajpbobppdil/ui.html#/tokens", { waitUntil: "networkidle0" })
-  await suiPage.waitForSelector("button[data-headlessui-state='']", {
-    timeout: 15000,
-  })
-  let btn = await suiPage.$("button[data-headlessui-state='']")
-  await btn.click()
+  // await suiPage.waitForSelector("button[data-headlessui-state='']", {
+  //   timeout: 15000,
+  // })
+  await sleep(500)
+  await findAndClick(suiPage, "button[data-headlessui-state='']")
+  // await suiPage.$eval("button[data-headlessui-state='']", (el) => el.click())
+  // let btn = await suiPage.$("button[data-headlessui-state='']")
+  // await btn.click()
   await sleep(300)
-  let addressList = await suiPage.$$("ul li >button.appearance-none")
-  await scrollIntoView(suiPage, addressList[idx])
-  await sleep(300)
-  await addressList[idx].click()
+  await suiPage.$$eval(
+    "ul li >button.appearance-none",
+    (els, idx) => {
+      els[idx].click()
+    },
+    idx
+  )
+  // let addressList = await suiPage.$$("ul li >button.appearance-none")
+  // await scrollIntoView(suiPage, addressList[idx])
+  // await sleep(300)
+  // await addressList[idx].click()
   await sleep(1000)
   suiPage.close()
 }

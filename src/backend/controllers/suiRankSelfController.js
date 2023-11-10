@@ -25,6 +25,14 @@ export const batchImport = async (req, res) => {
     res.json({ code: responseCodes.INTERNAL_SERVER_ERROR, message: error.message, data: null })
   }
 }
+export const runLengendExport = async (req, res) => {
+  try {
+    const emailRecord = await suiRankSelfService.runLengendExport()
+    res.json({ code: responseCodes.SUCCESS, message: "successfully", data: emailRecord })
+  } catch (error) {
+    res.json({ code: responseCodes.INTERNAL_SERVER_ERROR, message: error.message, data: null })
+  }
+}
 
 export const getAccount = async (req, res) => {
   const id = req.params.id
@@ -46,6 +54,10 @@ export const updateRank = async (req, res) => {
   const data = await suiRankSelfService.updateRank(id)
   res.json({ code: responseCodes.SUCCESS, message: "updated successfully", data })
 }
+export const updateRankAll = async (req, res) => {
+  const data = await suiRankSelfService.updateRankAll()
+  res.json({ code: responseCodes.SUCCESS, message: "updated successfully", data })
+}
 export const deleteAccount = async (req, res) => {
   const { ids } = req.body
   if (!ids || ids.length === 0) {
@@ -56,9 +68,9 @@ export const deleteAccount = async (req, res) => {
 }
 export const getAccountList = async (req, res) => {
   try {
-    const { currentPage, pageSize } = req.query || {}
+    const { currentPage, pageSize, sort, query, runlegendata = false, searchNoRank = false, searchRank = false,  realRank = false } = req.body || {}
     console.log(req.query)
-    const emailList = await suiRankSelfService.getAccounts({ currentPage, pageSize })
+    const emailList = await suiRankSelfService.getAccounts({ currentPage, pageSize, sort, query, runlegendata: runlegendata, searchNoRank: searchNoRank, searchRank, realRank })
     res.json({ code: responseCodes.SUCCESS, message: "Email list fetched successfully", data: emailList })
   } catch (error) {
     res.json({ code: responseCodes.INTERNAL_SERVER_ERROR, message: error.message, data: null })

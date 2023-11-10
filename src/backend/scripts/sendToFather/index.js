@@ -1,50 +1,55 @@
-import { login, send, switchAccount } from "@/utils/sui";
-import { openBrowser } from "@/api/bitbrowser";
-import { sleep } from "@/utils";
+import { login, send, switchAccount } from "@/utils/sui"
+import { openBrowser } from "@/api/bitbrowser"
+import { sleep, findAndClick } from "@/utils"
 // import clipboard from "node-clipboardy";
-const { clipboard } = require("electron");
-import { scriptLog } from "@/utils/log";
+const { clipboard } = require("electron")
+import { scriptLog } from "@/utils/log"
 
-const puppeteer = require("puppeteer-core");
-async function main(stopEvent, { id, password, amount }) {
+const puppeteer = require("puppeteer-core")
+async function main(stopEvent, { id, name, password, amount, max }) {
+  console.log(id, name, password, amount, max)
   const res = await openBrowser({
     id,
     args: [],
     extractIp: false,
-  });
+  })
+  console.log(res)
   if (res.success) {
-    let wsEndpoint = res.data.ws;
+    let wsEndpoint = res.data.ws
     const browser = await puppeteer.connect({
       browserWSEndpoint: wsEndpoint,
       defaultViewport: null,
-    });
-    let suiPage = await login(browser, password);
-    await sleep(1000);
-    let el = await suiPage.$(".flex.flex-col.gap-3 >div");
+    })
+    let suiPage = await login(browser, password)
+    await sleep(1000)
+    let el = await suiPage.$(".flex.flex-col.gap-3 >div")
 
-    const [copyBtn] = await el.$$("svg");
-    await copyBtn.click();
-    let fatherAddrs = null;
+    const [copyBtn] = await el.$$("svg")
+    await copyBtn.click()
+    let fatherAddrs = null
     try {
-      await sleep(200);
-      fatherAddrs = clipboard.readText();
-      scriptLog(`获取父地址成功：${fatherAddrs}`);
+      await sleep(200)
+      fatherAddrs = clipboard.readText()
+      scriptLog(`获取父地址成功：${fatherAddrs}`)
+      await suiPage.goto("chrome-extension://opcgpfmipidbgpenhmajoajpbobppdil/ui.html#/tokens", { waitUntil: "networkidle0" })
+      await sleep(1000)
+      await findAndClick(suiPage, "button[data-headlessui-state='']")
     } catch (error) {
-      scriptLog(error);
+      scriptLog(`窗口${name}归集失败`)
+      scriptLog(error)
     }
-    await suiPage.goto(
-      "chrome-extension://opcgpfmipidbgpenhmajoajpbobppdil/ui.html#/tokens",
-      { waitUntil: "networkidle0" }
-    );
-    await sleep(1000);
-    let btn = await suiPage.$("button[data-headlessui-state='']");
-    await btn.click();
-    let addressList = await suiPage.$$("ul li >button.appearance-none");
+    let addressList = await suiPage.$$("ul li >button.appearance-none")
     for (let i = 1; i < addressList.length; i++) {
-      await switchAccount(browser, i);
-      await send(browser, fatherAddrs, amount);
-      await sleep(500);
+      try {
+        await switchAccount(browser, i)
+        await send(browser, fatherAddrs, max ? Infinity : amount)
+        await sleep(500)
+      } catch (error) {
+        scriptLog(`窗口${name}，第${i + 1}个地址归集失败`)
+        scriptLog(error)
+        continue
+      }
     }
   }
 }
-export default main;
+export default main

@@ -5,7 +5,9 @@ import { sleep } from "@/utils"
 const { clipboard } = require("electron")
 import { scriptLog } from "@/utils/log"
 import puppeteer from "puppeteer-core"
-import { batchImport } from "@/services/suiRankSelfService"
+// import { batchImport } from "@/services/suiRankSelfService"
+import { windowbounds } from "@/api/bitbrowser"
+
 export default async function ({ window, password, bgColor }, next, record) {
   try {
     const res = await openBrowser({
@@ -19,11 +21,16 @@ export default async function ({ window, password, bgColor }, next, record) {
         browserWSEndpoint: wsEndpoint,
         defaultViewport: null,
       })
+      windowbounds({
+        type: "box",
+        width: 380,
+        height: 840,
+      })
       let adds = []
       let pKeys = []
       let passphrases = []
       await sleep(2000)
-      const page = await registry(browser, password)
+      const page = await login(browser, password)
       // const page = await browser.newPage()
       console.log("注册完成")
       // 创建10个账户
@@ -32,7 +39,9 @@ export default async function ({ window, password, bgColor }, next, record) {
       await page.$eval("#toaster-portal-container", (el) => (el.style = "display: none;")) // 干掉消息提示防止挡住按钮
       let els = await page.$$(".flex.flex-col.gap-3 >div")
       const createBtn = await findElementByTypeAndText(page, "Create New Account", "button")
-      next() // 到此剪贴板已经快用完不会错乱了
+      setTimeout(() => {
+        next() // 到此剪贴板已经快用完不会错乱了
+      }, 1500)
       while (els.length < 10) {
         await scrollIntoView(page, createBtn)
         await sleep(200)
@@ -91,7 +100,7 @@ export default async function ({ window, password, bgColor }, next, record) {
       const passphrasestr = `${window.name}\r\n${passphrases.join("\r\n")}`
       const pKeystr = `${window.name}\r\n${pKeys.join("\r\n")}`
       record(addrstr, passphrasestr, pKeystr)
-      await batchImport(adds, `${window.name}`, bgColor)
+      // await batchImport(adds, `${window.name}`, bgColor)
       browser.close()
     }
   } catch (error) {
