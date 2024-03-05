@@ -19,85 +19,23 @@ async function main(event, { config, password }) {
       browserWSEndpoint: wsEndpoint,
       defaultViewport: null,
     })
-    // setTimeout(() => {
-    //   windowbounds({
-    //     type: "box",
-    //     width: 1920,
-    //     height: 1080,
-    //     seqlist: [config.seq],
-    //   }).then((res) => {
-    //     console.log(res);
-    //   });
-    // }, 5000);
+    windowbounds({
+      type: "box",
+      startX: -10,
+      startY: -15,
+      col: 5,
+      width: 430,
+      height: 600,
+      spaceX: -20,
+      spaceY: -5,
+    })
     let suiPage = await login(browser, password)
     await sleep(1000)
     // await disconnect(browser, "SuiFrens")
     for (let i = 0; i < 10; i++) {
       await switchAccount(browser, i)
       await widthDrawSuiFren(i)
-      const status = await widthDrawScallop()
-      if (status === "success") {
-        scriptLog(`窗口[${config.name}]:钱包[${i + 1}]提取成功`)
-      } else if (status === "noSUI") {
-        scriptLog(`窗口[${config.name}]:钱包[${i + 1}]没有可提取的SUI`)
-      } else {
-        scriptLog(`窗口[${config.name}]:钱包[${i + 1}]提取失败,重试中...(只重试两次)`)
-        await widthDrawScallop()
-      }
       await sleep(2000)
-    }
-    async function widthDrawScallop() {
-      try {
-        await disconnect(browser, "Scallop")
-      } catch (error) {}
-      const scollopPage = await browser.newPage()
-      await scollopPage.goto("https://app.scallop.io/", {
-        waitUntil: "networkidle0",
-      })
-      await sleep(500)
-      try {
-        await connect(browser)
-      } catch (error) {
-        const connectBtn1 = await findElementByTypeAndText(scollopPage, "Connect wallet", "button")
-        await connectBtn1.click()
-        await sleep(1000)
-        const connectBtn2 = await findElementByTypeAndText(scollopPage, "Sui Wallet", "button")
-        await connectBtn2.click()
-        await sleep(2000)
-        await connect(browser)
-      }
-      const elements = await scollopPage.$$("div[id='headlessui-tabs-panel-:rq:'] .pool-list-tr")
-      let suiAsset = null
-      for (const element of elements) {
-        const flag = await element.$$eval(".pool-list-td p span", (els) => els.some((v) => v.innerText === "SUI"))
-        if (flag) {
-          suiAsset = element
-          break
-        }
-      }
-      const [supplyBtn, withdrawBtn] = await suiAsset.$$("button.cursor-pointer")
-      await scollopPage.evaluate((element) => {
-        element.scrollIntoView({ block: "center" })
-      }, withdrawBtn)
-      await withdrawBtn.click()
-      await sleep(500)
-      try {
-        await scollopPage.waitForFunction(() => document.querySelectorAll('.panel-selfinfo button[id^="popover-button-"]')[1].innerText !== "0 SUI supplied", { timeout: 20000 })
-      } catch (error) {
-        scollopPage.close()
-        return "noSUI"
-      }
-      const max = await findElementByTypeAndText(scollopPage, "Max", "div[id='headlessui-dialog-panel-:r5a:'] button")
-      await max.click()
-      const withdrawSUIBtn = await findElementByTypeAndText(scollopPage, "Withdraw SUI", "div[id='headlessui-dialog-panel-:r5a:'] button")
-      await withdrawSUIBtn.click()
-      await sleep(1000)
-      await auth(browser)
-      await scollopPage.waitForSelector(".notify h2")
-      const isSuccess = await scollopPage.$eval(".notify h2", (el) => el.innerText.includes("success"))
-      await sleep(2000)
-      await scollopPage.close()
-      return isSuccess ? "success" : "fail"
     }
     async function widthDrawSuiFren(i) {
       try {
@@ -124,13 +62,22 @@ async function main(event, { config, password }) {
       await suiFrenPage.waitForFunction(() => {
         const buttons = Array.from(document.querySelectorAll("button[aria-label='Connect Wallet']"))
         const redeemed = Array.from(document.querySelectorAll("div.absolute span"))
-        return (buttons && buttons.some((v) => v.querySelector("span") && v.querySelector("span").innerText === "Claim Now")) || (redeemed && redeemed.some((v) => v.innerText === "Redeemed"))
+        const texts = Array.from(document.querySelectorAll("div.font-bold.text-lg.w-full.max-w-md"))
+        return (buttons && buttons.some((v) => v.querySelector("span") && v.querySelector("span").innerText === "Claim Now")) || (redeemed && redeemed.some((v) => v.innerText === "Redeemed") || texts.some(v => v.innerText === 'Looks like you don’t have any rewards to claim. Check back later for announcements around future Quests.'))
       })
       //   const clamBtn = await findElementByTypeAndText(suiFrenPage, 'Claim Now', "button[aria-label='Connect Wallet']")
       const redeemed = await findElementByTypeAndText(suiFrenPage, "Redeemed", "div.absolute span")
       if (redeemed) {
-        await suiFrenPage.close()
         scriptLog("已领过奖励")
+        await sleep(3000)
+        await suiFrenPage.close()
+        return
+      }
+      const noReward = await findElementByTypeAndText(suiFrenPage, "Looks like you don’t have any rewards to claim. Check back later for announcements around future Quests.", "div.font-bold.text-lg.w-full.max-w-md")
+      if(noReward){
+        scriptLog("没奖励领")
+        await sleep(3000)
+        await suiFrenPage.close()
         return
       }
       await suiFrenPage.evaluate(() => {

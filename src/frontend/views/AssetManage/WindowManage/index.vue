@@ -4,6 +4,8 @@
       <el-select style="margin-right: 10px" v-model="serachForm.groupId" placeholder="请选择" size="small">
         <el-option v-for="item in groupList" :key="item.id" :label="item.groupName" :value="item.id"> </el-option>
       </el-select>
+      <el-button type="primary" size="mini" @click="noss" title="noss">nossMint</el-button>
+      <el-button type="primary" size="mini" @click="nossMonitor" title="noss">noss监控</el-button>
       <el-button type="primary" size="mini" @click="getList" title="刷新列表">查询</el-button>
       <!-- <el-button type="primary" size="mini" @click="stop" title="刷新列表">停止</el-button> -->
     </el-row>
@@ -23,7 +25,7 @@
           <el-button type="text" size="mini" @click="openSendSetting(row, 'sendToChild')">分水</el-button>
           <el-button type="text" size="mini" @click="openSendSetting(row, 'sendToFather')">集水</el-button>
           <!-- <el-button type="text" size="mini" @click="exportWallet(row)">导出钱包地址</el-button> -->
-          <!-- <el-button type="text" size="mini" @click="sui2(row)">Sui2期取货</el-button> -->
+          <el-button type="text" size="mini" @click="sui2(row)">Sui3期取货</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -154,6 +156,24 @@ export default {
         })
       })
     },
+    noss() {
+      runScript({
+        name: "noss",
+        id: uuid(),
+        params: {
+          setting: this.setting
+        }
+      })
+    },
+    nossMonitor() {
+      runScript({
+        name: "nossMonitor",
+        id: uuid(),
+        params: {
+          setting: this.setting
+        }
+      })
+    },
     exportWallet() {
       if (!this.setting.password) return this.$message.error("请先设置密码")
       this.exportLoading = true
@@ -203,7 +223,14 @@ export default {
     },
     sui2(row) {
       if (!this.setting.password) return this.$message.error("请先设置密码")
-      this.$ipc.send("sui2", row, this.setting.password)
+      runScript({
+        name: "sui3",
+        id: uuid(),
+        params: {
+          config: row,
+          password: this.setting.password,
+        },
+      })
     },
   },
 }

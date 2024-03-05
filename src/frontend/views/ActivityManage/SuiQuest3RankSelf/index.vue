@@ -7,7 +7,7 @@
       <el-switch v-model="serachForm.searchRank" style="margin-right: 10px"></el-switch>
       查补分号
       <el-switch v-model="serachForm.searchNoRank" style="margin-right: 10px"></el-switch>
-      查runlegend  
+      查runlegend
       <el-switch v-model="serachForm.runlegendata" style="margin-right: 10px"></el-switch>
       <el-button type="primary" size="mini" @click="importDb">导入</el-button>
       <el-button type="primary" size="mini" @click="exportDb">导出</el-button>
@@ -20,6 +20,16 @@
       <el-table-column prop="address" label="地址" min-width="80">
         <template #default="{ row }">
           <el-button type="text" :title="row.address" @click="$copy(row.address)">{{ fmtAddr(row.address) }}</el-button>
+        </template>
+      </el-table-column>
+      <el-table-column prop="isclaim" label="奖励" min-width="80">
+        <template #default="{ row }">
+          <span :style="{ color: row.isclaim ? 'green' : 'red' }">{{ row.isclaim ? "已领取" : "未领取" }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column prop="reward" label="奖励量" min-width="80">
+        <template #default="{ row }">
+          <span >{{ row.rankData.reward }}</span>
         </template>
       </el-table-column>
       <!-- <el-table-column prop="suins" label="域名" min-width="160"></el-table-column> -->
@@ -71,30 +81,6 @@
           <span v-else>-</span>
         </template>
       </el-table-column>
-      <el-table-column prop="POETRY_IN_MOTION" label="诗歌" min-width="90">
-        <template #default="{ row }">
-          <div v-if="row.rankData" class="score-box">
-            <div>
-              <span>{{ getHistory(row, "POETRY_IN_MOTION", false).newData }}/</span>
-              <span style="color: #ccc">{{ `${getHistory(row, "POETRY_IN_MOTION").prevData}` }}</span>
-            </div>
-            <span :style="{ color: getHistory(row, 'POETRY_IN_MOTION').color }">{{ `(${getHistory(row, "POETRY_IN_MOTION").diff})` }}</span>
-          </div>
-          <span v-else>-</span>
-        </template>
-      </el-table-column>
-      <el-table-column prop="THE_COLLECTION" label="绘画" min-width="70">
-        <template #default="{ row }">
-          <div v-if="row.rankData" class="score-box">
-            <div>
-              <span>{{ getHistory(row, "THE_COLLECTION", false).newData }}/</span>
-              <span style="color: #ccc">{{ `${getHistory(row, "THE_COLLECTION").prevData}` }}</span>
-            </div>
-            <span :style="{ color: getHistory(row, 'THE_COLLECTION').color }">{{ `(${getHistory(row, "THE_COLLECTION").diff})` }}</span>
-          </div>
-          <span v-else>-</span>
-        </template>
-      </el-table-column>
       <el-table-column prop="RUN_LEGENDS" label="跑步" min-width="110">
         <template #default="{ row }">
           <div v-if="row.rankData" class="score-box">
@@ -119,24 +105,6 @@
           <span v-else>-</span>
         </template>
       </el-table-column>
-      <el-table-column prop="PANZERDOG" label="坦克" min-width="100">
-        <template #default="{ row }">
-          <div v-if="row.rankData" class="score-box">
-            <div>
-              <span>{{ getHistory(row, "PANZERDOG", false).newData }}/</span>
-              <span style="color: #ccc">{{ `${getHistory(row, "PANZERDOG").prevData}` }}</span>
-            </div>
-            <span :style="{ color: getHistory(row, 'PANZERDOG').color }">{{ `(${getHistory(row, "PANZERDOG").diff})` }}</span>
-          </div>
-          <span v-else>-</span>
-        </template>
-      </el-table-column>
-      <!-- <el-table-column prop="HAS_SUINS" label="域名" min-width="120">
-        <template #default="{ row }">
-          <span v-if="row.rankData && row.rankData.metadata">{{ row.rankData.metadata.HAS_SUINS }}</span>
-          <span v-else>-</span>
-        </template>
-      </el-table-column> -->
       <el-table-column prop="WORLDS_BEYOND" label="WB" min-width="120">
         <template #default="{ row }">
           <div v-if="row.rankData" class="score-box">
@@ -244,8 +212,8 @@ export default {
         background: row.bgColor || "",
       }
     },
-    exportAddress(){
-      const str = this.selectedEmails.map(v => v.address)
+    exportAddress() {
+      const str = this.selectedEmails.map((v) => v.address)
       this.$copy(str.join("\r\n"))
       this.$message.success("复制成功!")
     },

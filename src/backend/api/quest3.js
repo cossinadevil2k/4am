@@ -5,11 +5,11 @@ const request = axios.create({
   timeout: 60000,
   headers: {},
 })
-request.defaults.proxy = {
-  host: '192.168.31.104',
-  port: '7890',
-  protocol: 'http',
-};
+// request.defaults.proxy = {
+//   host: '192.168.31.104',
+//   port: '7890',
+//   protocol: 'http',
+// };
 export const getHistory = () => {
   return request({
     method: "get",
@@ -26,7 +26,7 @@ export const contract = (data) => {
   return request({
     method: "post",
     url: "https://sui-mainnet.blastapi.io/bd1a4dc7-bdae-4abf-813a-3fd395578199",
-    data
+    data,
   })
 }
 
@@ -53,6 +53,25 @@ export const getSUINS = (address) => {
       id: "9",
       method: "suix_resolveNameServiceNames",
       params: [address, null, null],
+    },
+  })
+}
+export const getReward = (address) => {
+  return request({
+    headers: {},
+    method: "post",
+    url: `https://suifrens-rpc.mainnet.sui.io/`,
+    data: {
+      jsonrpc: "2.0",
+      id: "0",
+      method: "suix_getDynamicFieldObject",
+      params: [
+        "0xbe805e08100bb06428c80110e3d6d5978385a950d8b26b16a2241736f475535a",
+        {
+          type: "address",
+          value: address,
+        },
+      ],
     },
   })
 }

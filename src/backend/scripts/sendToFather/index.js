@@ -1,5 +1,5 @@
 import { login, send, switchAccount } from "@/utils/sui"
-import { openBrowser } from "@/api/bitbrowser"
+import { openBrowser, windowbounds } from "@/api/bitbrowser"
 import { sleep, findAndClick } from "@/utils"
 // import clipboard from "node-clipboardy";
 const { clipboard } = require("electron")
@@ -20,6 +20,16 @@ async function main(stopEvent, { id, name, password, amount, max }) {
       browserWSEndpoint: wsEndpoint,
       defaultViewport: null,
     })
+    windowbounds({
+      type: "box",
+      startX: -10,
+      startY: -15,
+      col: 5,
+      width: 430,
+      height: 650,
+      spaceX: -20,
+      spaceY: -5,
+    })
     let suiPage = await login(browser, password)
     await sleep(1000)
     let el = await suiPage.$(".flex.flex-col.gap-3 >div")
@@ -39,6 +49,7 @@ async function main(stopEvent, { id, name, password, amount, max }) {
       scriptLog(error)
     }
     let addressList = await suiPage.$$("ul li >button.appearance-none")
+    await suiPage.close()
     for (let i = 1; i < addressList.length; i++) {
       try {
         await switchAccount(browser, i)

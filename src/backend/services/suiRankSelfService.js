@@ -1,7 +1,7 @@
 import db from "@/db"
 import dayjs from "dayjs"
 import utc from "dayjs/plugin/utc"
-import { getRank, getSUINS } from "@/api/quest3"
+import { getRank, getSUINS, getReward } from "@/api/quest3"
 import { scriptLog } from "@/utils/log"
 import { dialog } from "electron"
 import fs from "fs"
@@ -111,6 +111,7 @@ export const updateRank = async (id) => {
 const _updateRank = async (account) => {
   let rankData = account.rankData
   let suins = account.suins
+  let isclaim = account.isclaim
   let updated_at = account.updated_at
   let historyRankData = account.historyRankData
   try {
@@ -139,13 +140,20 @@ const _updateRank = async (account) => {
     } else {
       scriptLog(`更新${account.address}失败`)
     }
-    const suinsData = await getSUINS(account.address)
-    suins = suinsData?.data?.result?.data?.[0] || ""
+    if(!suins){
+      const suinsData = await getSUINS(account.address)
+      suins = suinsData?.data?.result?.data?.[0] || ""
+    }
+    //未领奖励的查询是否领取奖励
+    if(!isclaim){
+      const claimData = await getReward(account.address)
+      isclaim = claimData?.data.result?.error?.code === "dynamicFieldNotFound"
+    }
   } catch (error) {
     console.log(error)
     scriptLog(`更新${account.address}失败`)
   }
-  await db.sui_quest_self.update({ _id: account._id }, { $set: { rankData, historyRankData, suins, updated_at, score: rankData?.score, rank: rankData?.rank } })
+  await db.sui_quest_self.update({ _id: account._id }, { $set: { rankData, historyRankData, suins, updated_at, score: rankData?.score, rank: rankData?.rank, isclaim } })
 }
 export const updateRankAll = async () => {
   scriptLog(`开始全量更新,共${index}条...`)
