@@ -12,6 +12,7 @@ import test from '@/scripts/test'
 import test2 from '@/scripts/test2'
 import noss from '@/scripts/noss'
 import nossMonitor from '@/scripts/nossMonitor'
+import zeta from '@/scripts/zeta'
 export default {
   suiQuest2: new StoppableScript(suiQuest2),
   exportWallet: new StoppableScript(exportWallet),
@@ -26,4 +27,5 @@ export default {
   test2: new StoppableScript(test2),
   noss: new StoppableScript(noss),
   nossMonitor: new StoppableScript(nossMonitor),
+  zeta: new StoppableScript(zeta),
 }
