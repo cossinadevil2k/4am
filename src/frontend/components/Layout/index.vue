@@ -39,6 +39,10 @@ export default {
           icon: "el-icon-s-flag",
           children: [
             {
+              name: "xMetaCene",
+              path: "/activity-manage/meta-cene",
+            },
+            {
               name: "OverWallet",
               path: "/activity-manage/over-wallet",
             },

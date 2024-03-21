@@ -40,6 +40,14 @@ const routes = [
   //   },
   // },
   {
+    path: "/activity-manage/meta-cene",
+    name: "ActivityManage_xMetaCene",
+    component: () => import("@/views/ActivityManage/xMetaCene"),
+    meta: {
+      title: "xMetaCene",
+    },
+  },
+  {
     path: "/activity-manage/over-wallet",
     name: "ActivityManage_OverWallet",
     component: () => import("@/views/ActivityManage/OverWallet"),

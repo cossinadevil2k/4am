@@ -29,8 +29,8 @@ async function main(event, { config, password }) {
         })
         await login(browser, password)
         await sleep(1000)
-        // await sendToSelf(browser)
-        await swapIzumi(browser)
+        await sendToSelf(browser)
+        // await swapIzumi(browser)
     } else {
         scriptLog(`窗口[${config.name}]打开失败`)
         scriptLog(res)
