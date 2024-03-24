@@ -14,4 +14,5 @@ export default function (router) {
   router.post("/metaCene/charge", metaCeneController.charge)
   router.post("/metaCene/useEnergy", metaCeneController.useEnergy)
   router.post("/metaCene/getLottoIndex", metaCeneController.getLottoIndex)
+  router.post("/metaCene/exchange", metaCeneController.exchange)
 }

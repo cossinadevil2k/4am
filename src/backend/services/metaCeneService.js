@@ -185,6 +185,15 @@ export const charge = async (id) => {
   await metaCeneDb.update({ _id: id }, { $set: { bossInfo: { ...account.bossInfo, charged: account.bossInfo.charged + chargeAmount } } })
   return data
 }
+export const exchange = async (id, amount) => {
+  let account = await metaCeneDb.findOne({ _id: id })
+  const { cookie } = account
+  const xMetaCeneApi = new XMetaCeneApi({ cookie })
+  setProxy(account, xMetaCeneApi)
+  const data = await xMetaCeneApi.exchange(amount)
+  await metaCeneDb.update({ _id: id }, { $set: { integral: data.data.header.integral } })
+  return data
+}
 
 const setProxy = (account, api) => {
   if (account.proxy_host && account.proxy_port) {
@@ -205,7 +214,7 @@ export const useEnergy = async (id, roleId) => {
   const data = await xMetaCeneApi.useEnergy(roleId)
   data.data.pet = account.gameData.pet
   await metaCeneDb.update({ _id: id }, { $set: updateGameData(data) })
-} 
+}
 export const getLottoIndex = async (id) => {
   let account = await metaCeneDb.findOne({ _id: id })
   const { cookie } = account

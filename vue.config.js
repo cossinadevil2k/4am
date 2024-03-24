@@ -31,6 +31,7 @@ module.exports = {
         // 设置主进程的别名
         config.resolve.alias.set("@", "/src/backend")
         config.resolve.alias.set("SHARE", "/src/shared")
+        config.resolve.alias.set("PYTHON", "/src/python")
         // 转译项目中的所有代码，但排除所有第三方库
         config.module
           .rule("js")

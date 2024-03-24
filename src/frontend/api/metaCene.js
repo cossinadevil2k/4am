@@ -103,4 +103,12 @@ export function getLottoIndex(data) {
     data
   })
 }
+// 升级
+export function exchange(data) {
+  return http({
+    url: `/metaCene/exchange`,
+    method: "post",
+    data
+  })
+}
 

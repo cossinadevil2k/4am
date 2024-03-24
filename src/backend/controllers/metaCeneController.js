@@ -20,7 +20,7 @@ export const getAccount = async (req, res) => {
   if (!email) {
     return res.status(responseCodes.NOT_FOUND).json({ code: responseCodes.NOT_FOUND, message: "Email not found", data: null })
   }
-  res.json({ code: responseCodes.SUCCESS, message: "Email fetched successfully", data: email })
+  res.json({ code: responseCodes.SUCCESS, message: "success", data: email })
 }
 
 export const updateAccount = async (req, res) => {
@@ -52,7 +52,7 @@ export const getDetail = async (req, res) => {
   try {
     const id = req.params.id
     const data = await metaCeneService.getDetail({ id })
-    res.json({ code: responseCodes.SUCCESS, message: "Email fetched successfully", data })
+    res.json({ code: responseCodes.SUCCESS, message: "success", data })
   } catch (error) {
     res.json({ code: responseCodes.INTERNAL_SERVER_ERROR, message: error.message, data: null })
   }
@@ -61,7 +61,7 @@ export const getSpar = async (req, res) => {
   try {
     const id = req.params.id
     const data = await metaCeneService.getSpar(id)
-    res.json({ code: responseCodes.SUCCESS, message: "Email fetched successfully", data })
+    res.json({ code: responseCodes.SUCCESS, message: "success", data })
   } catch (error) {
     res.json({ code: responseCodes.INTERNAL_SERVER_ERROR, message: error.message, data: null })
   }
@@ -70,7 +70,7 @@ export const getLottoIndex = async (req, res) => {
   try {
     const id = req.body.id
     const data = await metaCeneService.getLottoIndex(id)
-    res.json({ code: responseCodes.SUCCESS, message: "Email fetched successfully", data })
+    res.json({ code: responseCodes.SUCCESS, message: "success", data })
   } catch (error) {
     res.json({ code: responseCodes.INTERNAL_SERVER_ERROR, message: error.message, data: null })
   }
@@ -79,7 +79,7 @@ export const wakeUp = async (req, res) => {
   try {
     const id = req.params.id
     const data = await metaCeneService.wakeUp(id)
-    res.json({ code: responseCodes.SUCCESS, message: "Email fetched successfully", data })
+    res.json({ code: responseCodes.SUCCESS, message: "success", data })
   } catch (error) {
     res.json({ code: responseCodes.INTERNAL_SERVER_ERROR, message: error.message, data: null })
   }
@@ -88,7 +88,16 @@ export const charge = async (req, res) => {
   try {
     const { id } = req.body
     const data = await metaCeneService.charge(id)
-    res.json({ code: responseCodes.SUCCESS, message: "Email fetched successfully", data })
+    res.json({ code: responseCodes.SUCCESS, message: "success", data })
+  } catch (error) {
+    res.json({ code: responseCodes.INTERNAL_SERVER_ERROR, message: error.message, data: null })
+  }
+}
+export const exchange = async (req, res) => {
+  try {
+    const { id, amount } = req.body
+    const data = await metaCeneService.exchange(id, amount)
+    res.json({ code: responseCodes.SUCCESS, message: "success", data })
   } catch (error) {
     res.json({ code: responseCodes.INTERNAL_SERVER_ERROR, message: error.message, data: null })
   }
@@ -97,7 +106,7 @@ export const roleLvUp = async (req, res) => {
   try {
     const { id, roleId } = req.body
     const data = await metaCeneService.roleLvUp(id, roleId)
-    res.json({ code: responseCodes.SUCCESS, message: "Email fetched successfully", data })
+    res.json({ code: responseCodes.SUCCESS, message: "success", data })
   } catch (error) {
     res.json({ code: responseCodes.INTERNAL_SERVER_ERROR, message: error.message, data: null })
   }
@@ -106,7 +115,7 @@ export const useEnergy = async (req, res) => {
   try {
     const { id, roleId } = req.body
     const data = await metaCeneService.useEnergy(id, roleId)
-    res.json({ code: responseCodes.SUCCESS, message: "Email fetched successfully", data })
+    res.json({ code: responseCodes.SUCCESS, message: "success", data })
   } catch (error) {
     res.json({ code: responseCodes.INTERNAL_SERVER_ERROR, message: error.message, data: null })
   }
@@ -115,7 +124,7 @@ export const doTask = async (req, res) => {
   try {
     const { id } = req.params
     const data = await metaCeneService.doTask(id)
-    res.json({ code: responseCodes.SUCCESS, message: "Email fetched successfully", data })
+    res.json({ code: responseCodes.SUCCESS, message: "success", data })
   } catch (error) {
     res.json({ code: responseCodes.INTERNAL_SERVER_ERROR, message: error.message, data: null })
   }

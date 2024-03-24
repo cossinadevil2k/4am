@@ -55,8 +55,8 @@
       <el-table-column prop="bossInfo" label="boss" min-width="100">
         <template #default="{ row }">
           <div v-if="row.bossInfo">
-            <p style="font-size: 12px;">充能：{{ formatNumber(row.bossInfo.charged) }}</p>
-            <p style="font-size: 12px;">充能奖励：{{ row.bossInfo.chargeBonus }}</p>
+            <p style="font-size: 12px">充能：{{ formatNumber(row.bossInfo.charged) }}</p>
+            <p style="font-size: 12px">充能奖励：{{ row.bossInfo.chargeBonus }}</p>
           </div>
         </template>
       </el-table-column>
@@ -78,14 +78,28 @@
       <el-table-column prop="hdLog" label="奖品历史" min-width="165">
         <template #default="{ row }">
           <div v-if="row.hdLog && row.hdLog.length">
-            <p v-for="(log, index) in row.hdLog" :key="index" style="font-size: 12px; color: gray">{{ `${index + 1}:${log.item_name}` }}</p>
+            <template v-for="(log, index) in row.hdLog">
+              <p v-if="log.type === 1" :key="index" style="font-size: 12px; color: gray">{{ `${index + 1}:消耗 ${log.honorPoints} 兑换 ${log.tmark} tmark` }}</p>
+              <p v-else :key="index" style="font-size: 12px; color: gray">{{ `${index + 1}:${log.item_name}` }}</p>
+            </template>
           </div>
         </template>
       </el-table-column>
       <el-table-column prop="remark" label="备注" min-width="120"></el-table-column>
-      <el-table-column prop="operate" label="操作" min-width="180">
+      <el-table-column prop="operate" label="操作" min-width="220">
         <template #default="{ row }">
-          <el-button :loading="row.loading" type="text" size="mini" @click="getDetail(row)">刷新</el-button>
+          <el-popover placement="top" width="240" v-model="row.exchangeVisible">
+            <el-slider v-model="row.exchangeValue" :max="row.integral"> </el-slider>
+            <el-input-number v-model="row.exchangeValue" :min="0" :max="row.integral" size="mini"></el-input-number>
+            <p style="font-size: 12px; color: gray">{{ `兑换：${(row.exchangeValue * 0.012).toFixed(2)} TMARK` }}</p>
+            <el-button type="text" @click="row.exchangeValue = row.integral">max</el-button>
+            <div style="text-align: right; margin: 0">
+              <el-button size="mini" type="text" @click="row.exchangeVisible = false">取消</el-button>
+              <el-button type="primary" size="mini" @click="exchange(row, row.exchangeValue)">确定</el-button>
+            </div>
+            <el-button :loading="row.exchangeLoading" type="text" size="mini" slot="reference">兑换</el-button>
+          </el-popover>
+          <el-button :loading="row.loading" type="text" size="mini" style="margin-left: 10px" @click="getDetail(row)">刷新</el-button>
           <el-button :loading="row.chargeLoading" type="text" size="mini" @click="charge(row)">充能</el-button>
           <el-button :loading="row.lottoLoading" type="text" size="mini" @click="lotto(row)">抽奖</el-button>
           <el-button type="text" size="mini" @click="openAccountDialog(row)">编辑</el-button>
@@ -96,7 +110,8 @@
     <AddDialog ref="addDialog" @success="getList"></AddDialog>
     <template slot="footer-left">
       <el-button type="primary" :loading="batchRunLoading" :disabled="!selectedEmails.length" size="small" @click="batchRunRefresh">批量刷新</el-button>
-      <el-button type="danger" :disabled="!selectedEmails.length" size="small">批量删除</el-button>
+      <span style="font-size: 12px; color: gray;margin-left: 10px">{{ `荣誉点总量： ${ totalHonorPoints }` }}</span>
+      <!-- <el-button type="danger" :disabled="!selectedEmails.length" size="small">批量删除</el-button> -->
     </template>
     <el-pagination
       slot="footer-right"
@@ -114,7 +129,7 @@
 <script>
 import { mapState } from "vuex"
 import AddDialog from "./Dialog/addDialog.vue"
-import { list, remove, detail, getDetail, roleLvUp, wakeUp, useEnergy, getSpar, doTask, charge, getLottoIndex } from "@/api/metaCene"
+import { list, remove, detail, getDetail, roleLvUp, wakeUp, useEnergy, getSpar, doTask, charge, getLottoIndex, exchange } from "@/api/metaCene"
 export default {
   components: { AddDialog },
   data() {
@@ -141,6 +156,9 @@ export default {
   },
   computed: {
     ...mapState(["setting"]),
+    totalHonorPoints(){
+      return this.tableData.reduce((pre, row)=> pre + Number(row.integral), 0)
+    }
   },
   mounted() {
     this.getList()
@@ -156,7 +174,7 @@ export default {
       this.lvUptimeId = setInterval(() => {
         this.batchRun(async (v) => {
           await this.getSpar(v.id)
-          const newRow =  this.tableData.find((row) => row.id === v.id)
+          const newRow = this.tableData.find((row) => row.id === v.id)
           if (newRow.petLv - newRow.roleManLv > 1 && newRow.spar > newRow.gameData.roleMan.upNeedSpar) {
             await this.roleLvUp(v, 1)
           } else if (newRow.petLv - newRow.roleWomanLv > 1 && newRow.spar > newRow.gameData.roleWoman.upNeedSpar) {
@@ -191,6 +209,16 @@ export default {
       })
       await this.update(row.id)
     },
+    async exchange(row, amount){
+      row.exchangeLoading = true
+      row.exchangeVisible = false
+      await exchange({ id: row.id, amount: amount }).finally(async (res) => {
+        row.exchangeLoading = false
+      })
+      row.exchangeValue = 0
+      this.$message.success("成功")
+      await this.update(row.id)
+    },
     async getList() {
       const { currentPage, pageSize } = this.pageInfo
       this.loading = true
@@ -207,8 +235,11 @@ export default {
         manEnergyLoading: false,
         taskLoading: false,
         chargeLoading: false,
+        exchangeLoading: false,
         lottoLoading: false,
         loading: false,
+        exchangeValue: 0,
+        exchangeVisible: false,
       }))
       this.pageInfo.total = res.data.pageInfo.total
       // clearInterval(this.timeId)
@@ -249,7 +280,7 @@ export default {
         })
       }, 1000 * 60 * 5)
     },
-    async batchRunRefresh(){
+    async batchRunRefresh() {
       this.batchRunLoading = true
       await this.batchRun(this.getDetail).finally(() => {
         this.batchRunLoading = false
@@ -295,8 +326,8 @@ export default {
       })
       await this.getDetail(row)
     },
-    async lotto(row){
-      if(row.integral < 100) return this.$message.error("抽奖券不够")
+    async lotto(row) {
+      if (row.integral < 100) return this.$message.error("抽奖券不够")
       row.lottoLoading = true
       const res = await getLottoIndex({ id: row.id }).finally(() => {
         row.lottoLoading = false

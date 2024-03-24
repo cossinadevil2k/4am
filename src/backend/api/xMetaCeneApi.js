@@ -115,9 +115,14 @@ export default class xMetaCeneApi {
     return await this.http({ user: { useEnergy: { role_id: roleId, count: 1 } } })
   }
   async getLottoIndex() {
-    return await this.http({ user: { getLottoIndex: { } } })
+    return await this.http({ user: { getLottoIndex: {} } })
   }
   async getHdLog() {
-    return await this.http({ user: { getHdLog: { } } })
+    return await this.http({ user: { getHdLog: {} } })
+  }
+  async exchange(integral) {
+    return await this.http({
+      user: { exchange: { integral } }
+    })
   }
 }
