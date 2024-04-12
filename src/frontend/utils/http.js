@@ -1,6 +1,7 @@
 import axios from "axios"
 import { Message } from "element-ui"
-const baseURL = process.env.VUE_APP_FRONTEND_BASE_URL || "http://localhost:3333"
+const isDevelopment = process.env.NODE_ENV !== "production"
+const baseURL = isDevelopment ? process.env.VUE_APP_FRONTEND_BASE_URL_DEV : process.env.VUE_APP_FRONTEND_BASE_URL || "http://localhost:3333"
 const request = axios.create({
   // headers: {
   //   "content-type": "application/json",

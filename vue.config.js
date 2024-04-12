@@ -38,7 +38,7 @@ module.exports = {
           .test(/\.(js)$/) // 添加 cjs 和 mjs
           .exclude.add((filepath) => {
             // 排除 node_modules 目录下的文件，但允许 node_modules/socks-proxy-agent
-            return filepath.includes("node_modules") && !filepath.includes("socks-proxy-agent")
+            return filepath.includes("node_modules") && !filepath.includes("socks-proxy-agent") && !filepath.includes("ethers") && !filepath.includes("@noble")
           })
           .end()
           .use("babel-loader")

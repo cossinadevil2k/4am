@@ -51,3 +51,34 @@ export async function scrollIntoView(page, element) {
 export async function findAndClick(page, selector) {
   return await page.$eval(selector, (el) => el.click())
 }
+
+
+export async function batchRunFn(arr, fn, concurrencyLimit = 10) {
+  let activeRequests = 0;
+  let currentIndex = 0;
+
+  const processNextRequest = async () => {
+    if (currentIndex >= arr.length) {
+      return;
+    }
+    const index = currentIndex++;
+    const current = arr[index];
+    try {
+      activeRequests++;
+      await fn(current)
+    } catch (error) {
+    } finally {
+      activeRequests--;
+      processNextRequest();
+    }
+  };
+
+  while (activeRequests < concurrencyLimit && currentIndex < arr.length) {
+    processNextRequest();
+  }
+
+  // 等待所有请求完成
+  while (activeRequests > 0) {
+    await new Promise(resolve => setTimeout(resolve, 100)); // 等待一段时间
+  }
+}

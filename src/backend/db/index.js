@@ -12,6 +12,10 @@ const db = {
     autoload: true,
     filename: path.join(dbPath, "email.db"),
   }),
+  wallet: Datastore.create({
+    autoload: true,
+    filename: path.join(`${dbPath}/wallet`, "wallet.db"),
+  }),
   over: Datastore.create({
     autoload: true,
     filename: path.join(dbPath, "over.db"),
@@ -19,6 +23,10 @@ const db = {
   metaCene: Datastore.create({
     autoload: true,
     filename: path.join(dbPath, "metaCene.db"),
+  }),
+  a0gi: Datastore.create({
+    autoload: true,
+    filename: path.join(dbPath, "a0gi.db"),
   }),
   sui_lette: Datastore.create({
     autoload: true,
@@ -40,6 +48,10 @@ const db = {
     autoload: true,
     filename: path.join(dbPath, "system_info.db"),
   }),
+  system_setting: Datastore.create({
+    autoload: true,
+    filename: path.join(dbPath, "system_setting.db"),
+  })
 }
 
 async function temp() {
@@ -50,6 +62,6 @@ async function temp() {
     await db.metaCene.update({ _id: v._id }, update)
   }
 }
-temp()
+// temp()
 updateDb(db) // 修复或更新数据库
 export default db

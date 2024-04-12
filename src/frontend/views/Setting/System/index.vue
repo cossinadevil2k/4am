@@ -13,52 +13,14 @@
       <el-form-item label="导入数据库">
         <el-button type="text" @click="importDb">点击导入</el-button>
       </el-form-item>
+      <el-form-item label="socks5Api">
+        <el-input v-model="form.socks5Api" placeholder="socks5Api地址（记得添加白名单）" type="text"></el-input>
+      </el-form-item>
+      <el-form-item label="2CaptchaApi">
+        <el-input v-model="form.twoCaptchaApi" placeholder="2CaptchaApi地址（记得保证余额充足）" type="text"></el-input>
+      </el-form-item>
       <el-form-item label="版本信息">
         <span>{{ version }}</span>
-      </el-form-item>
-      <el-divider content-position="left">noss设置</el-divider>
-      <el-form-item label="代理" prop="proxy">
-        <el-input placeholder="username:password@your-socks5-proxy-server:port" type="text" v-model="form.proxy" size="small"></el-input>
-      </el-form-item>
-      <el-form-item label="登录时间" prop="loginTime">
-        <el-input placeholder="请输入" type="text" v-model="form.loginTime" size="small"></el-input>
-      </el-form-item>
-      <el-form-item label="mint时间" prop="mintTime">
-        <el-input placeholder="请输入" type="text" v-model="form.mintTime" size="small"></el-input>
-      </el-form-item>
-      <el-form-item label="休息时间" prop="sleepTime">
-        <el-input placeholder="请输入" type="text" v-model="form.sleepTime" size="small"></el-input>
-      </el-form-item>
-      <el-form-item label="线程" prop="threads">
-        <el-input placeholder="请输入" type="text" v-model="form.threads" size="small"></el-input>
-      </el-form-item>
-      <el-form-item label="chrome路径" prop="pathChrome">
-        <el-input placeholder="请输入" type="text" v-model="form.pathChrome" size="small"></el-input>
-      </el-form-item>
-      <el-form-item label="userData路径" prop="pathUserData">
-        <el-input placeholder="请输入" type="text" v-model="form.pathUserData" size="small"></el-input>
-      </el-form-item>
-      <el-form-item label="插件路径" prop="pathExtensions">
-        <el-input placeholder="请输入" type="text" v-model="form.pathExtensions" size="small"></el-input>
-      </el-form-item>
-      <el-divider content-position="left">noss监控</el-divider>
-      <el-form-item label="监控间隔" prop="age">
-        <el-input placeholder="请输入" type="text" v-model="form.monitorTime" size="small"></el-input>
-      </el-form-item>
-      <el-form-item label="监控地址1" prop="age">
-        <el-input placeholder="请输入" type="text" v-model="form.nossAddr1" size="small"></el-input>
-      </el-form-item>
-      <el-form-item label="监控地址2" prop="age">
-        <el-input placeholder="请输入" type="text" v-model="form.nossAddr2" size="small"></el-input>
-      </el-form-item>
-      <el-form-item label="监控地址3" prop="age">
-        <el-input placeholder="请输入" type="text" v-model="form.nossAddr3" size="small"></el-input>
-      </el-form-item>
-      <el-form-item label="监控地址4" prop="age">
-        <el-input placeholder="请输入" type="text" v-model="form.nossAddr4" size="small"></el-input>
-      </el-form-item>
-      <el-form-item label="监控地址5" prop="age">
-        <el-input placeholder="请输入" type="text" v-model="form.nossAddr5" size="small"></el-input>
       </el-form-item>
     </el-form>
     <template #footer-right>
@@ -75,27 +37,16 @@ export default {
     return {
       defaultForm: {
         password: "",
+        socks5Api: "",
+        twoCaptchaApi: "",
         darkMode: false,
-        loginTime: 30 * 1000,
-        mintTime: 5 * 60 * 1000,
-        sleepTime: 3 * 60 * 1000,
-        threads: "12",
-        pathChrome: "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
-        pathUserData: "C:\\Users\\Administrator\\AppData\\Local\\Google\\Chrome\\User Data",
-        pathExtensions: "C:\\Users\\Administrator\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\Extensions\\iokeahhehimjnekafflcihljlcjccdbe\\3.6.0_0",
-        proxy: "",
-        monitorTime: 20 * 60 * 1000,
-        nossAddr1: "",
-        nossAddr2: "",
-        nossAddr3: "",
-        nossAddr4: "",
-        nossAddr5: "",
       },
       form: {},
       version: process.env.VUE_APP_VERSION,
     }
   },
   created() {
+    console.log(this.$store.state.setting)
     this.form = Object.assign({ ...this.defaultForm }, this.$store.state.setting)
   },
   methods: {
@@ -134,7 +85,7 @@ export default {
     text-align: left;
   }
 }
-::v-deep .m-content{
+::v-deep .m-content {
   overflow: auto;
 }
 </style>

@@ -31,14 +31,22 @@ const routes = [
       title: "邮件列表",
     },
   },
-  // {
-  //   path: "/window-manage/detail",
-  //   name: "WindowManage_Detail",
-  //   component: () => import("@/views/WindowManage/List/Detail"),
-  //   meta: {
-  //     title: "窗口列表",
-  //   },
-  // },
+  {
+    path: "/asset-manage/wallet-manage",
+    name: "AssetManage_WalletManage",
+    component: () => import("@/views/AssetManage/WalletManage"),
+    meta: {
+      title: "钱包管理",
+    },
+  },
+  {
+    path: "/asset-manage/wallet-manage/wallet-detail",
+    name: "AssetManage_WalletManage_WalletDetail",
+    component: () => import("@/views/AssetManage/WalletManage/Child"),
+    meta: {
+      title: "钱包详情",
+    },
+  },
   {
     path: "/activity-manage/meta-cene",
     name: "ActivityManage_xMetaCene",
@@ -56,29 +64,45 @@ const routes = [
     },
   },
   {
-    path: "/activity-manage/sui-lette",
-    name: "ActivityManage_SuiLette",
-    component: () => import("@/views/ActivityManage/SuiLette"),
+    path: "/activity-manage/A0GI",
+    name: "ActivityManage_A0GI",
+    component: () => import("@/views/ActivityManage/A0GI"),
     meta: {
-      title: "SuiLette",
-    },
+      title: "A0GI"
+    }
   },
   {
-    path: "/activity-manage/sui-quest3-rank",
-    name: "ActivityManage_SuiQuest3Rank",
-    component: () => import("@/views/ActivityManage/SuiQuest3Rank"),
+    path: "/activity-manage/A0GI/A0GI-detail",
+    name: "ActivityManage_A0GI_Detail",
+    component: () => import("@/views/ActivityManage/A0GI/Child"),
     meta: {
-      title: "SuiQuest3Rank",
-    },
+      title: ""
+    }
   },
-  {
-    path: "/activity-manage/sui-quest3-rank-self",
-    name: "ActivityManage_SuiQuest3RankSelf",
-    component: () => import("@/views/ActivityManage/SuiQuest3RankSelf"),
-    meta: {
-      title: "SuiQuest3RankSelf",
-    },
-  },
+  // {
+  //   path: "/activity-manage/sui-lette",
+  //   name: "ActivityManage_SuiLette",
+  //   component: () => import("@/views/ActivityManage/SuiLette"),
+  //   meta: {
+  //     title: "SuiLette",
+  //   },
+  // },
+  // {
+  //   path: "/activity-manage/sui-quest3-rank",
+  //   name: "ActivityManage_SuiQuest3Rank",
+  //   component: () => import("@/views/ActivityManage/SuiQuest3Rank"),
+  //   meta: {
+  //     title: "SuiQuest3Rank",
+  //   },
+  // },
+  // {
+  //   path: "/activity-manage/sui-quest3-rank-self",
+  //   name: "ActivityManage_SuiQuest3RankSelf",
+  //   component: () => import("@/views/ActivityManage/SuiQuest3RankSelf"),
+  //   meta: {
+  //     title: "SuiQuest3RankSelf",
+  //   },
+  // },
   {
     path: "/setting/system",
     name: "Setting_System",

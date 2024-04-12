@@ -2,6 +2,7 @@ import Vue from "vue"
 import Vuex from "vuex"
 import dayjs from "dayjs"
 import { local } from "@/utils/storage"
+import { updateSystemSetting } from "@/api/system"
 Vue.use(Vuex)
 // 动态设置主题
 function setTheme(themeName) {
@@ -29,6 +30,7 @@ export default new Vuex.Store({
       setTheme(setting.darkMode ? "theme-dark" : "theme-light")
       state.setting = setting
       local.set("setting", setting)
+      updateSystemSetting(setting)
     },
     ADD_LOG(state, log) {
       state.logs.push({ log, time: dayjs().format("YYYY-MM-DD HH:mm:ss") })

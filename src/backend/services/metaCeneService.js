@@ -221,5 +221,6 @@ export const getLottoIndex = async (id) => {
   const xMetaCeneApi = new XMetaCeneApi({ cookie })
   setProxy(account, xMetaCeneApi)
   const data = await xMetaCeneApi.getLottoIndex()
+  scriptLog(`窗口：${account.name}抽到: ${data.data.item_name}`)
   return data.data
-} 
+}

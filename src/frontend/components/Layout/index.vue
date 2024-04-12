@@ -32,6 +32,10 @@ export default {
               name: "邮箱管理",
               path: "/asset-manage/email-manage",
             },
+            {
+              name: "钱包管理",
+              path: "/asset-manage/wallet-manage",
+            },
           ],
         },
         {
@@ -47,17 +51,21 @@ export default {
               path: "/activity-manage/over-wallet",
             },
             {
-              name: "SuiLette",
-              path: "/activity-manage/sui-lette",
-            },
-            {
-              name: "SuiQuest3Rank",
-              path: "/activity-manage/sui-quest3-rank",
-            },
-            {
-              name: "SuiQuest3RankSelf",
-              path: "/activity-manage/sui-quest3-rank-self",
-            },
+              name: 'A0GI',
+              path: "/activity-manage/A0GI"
+            }
+            // {
+            //   name: "SuiLette",
+            //   path: "/activity-manage/sui-lette",
+            // },
+            // {
+            //   name: "SuiQuest3Rank",
+            //   path: "/activity-manage/sui-quest3-rank",
+            // },
+            // {
+            //   name: "SuiQuest3RankSelf",
+            //   path: "/activity-manage/sui-quest3-rank-self",
+            // },
           ],
         },
         {

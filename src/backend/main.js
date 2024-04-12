@@ -3,10 +3,10 @@ import express from "express"
 import registerRoutes from "@/routes"
 import fs from "fs"
 import path from "path"
-
+const isDevelopment = process.env.NODE_ENV !== "production"
 function server() {
   const app = express()
-  const port = process.env.VUE_APP_BACKEND_PORT || 3333
+  const port = isDevelopment? process.env.VUE_APP_BACKEND_PORT_DEV : process.env.VUE_APP_BACKEND_PORT || 3333
   const router = express.Router()
   // 解析JSON请求体
   app.use(express.json())

@@ -1,6 +1,6 @@
 {
   "name": "4am",
-  "version": "0.1.26",
+  "version": "0.1.29",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve --mode production",
@@ -17,6 +17,7 @@
     "url": "https://github.com/cardamon-dk/4am"
   },
   "dependencies": {
+    "@2captcha/captcha-solver": "^1.0.0",
     "@babel/preset-env": "^7.22.20",
     "@electron/remote": "^2.0.11",
     "@google-cloud/local-auth": "^2.1.0",
@@ -26,8 +27,10 @@
     "electron-log": "^4.4.8",
     "electron-updater": "^6.1.4",
     "element-ui": "^2.15.14",
+    "ethers": "6.x",
     "express": "^4.18.2",
     "googleapis": "^105.0.0",
+    "json2csv": "^6.0.0-alpha.2",
     "mailparser": "^3.6.5",
     "nedb-promises": "^6.2.3",
     "puppeteer-core": "9",
@@ -36,7 +39,8 @@
     "uuid": "^9.0.1",
     "vue": "^2.6.11",
     "vue-router": "^3.2.0",
-    "vuex": "^3.4.0"
+    "vuex": "^3.4.0",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.5.7",

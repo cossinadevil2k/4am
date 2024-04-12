@@ -4,10 +4,7 @@
       <el-select style="margin-right: 10px" v-model="serachForm.groupId" placeholder="请选择" size="small">
         <el-option v-for="item in groupList" :key="item.id" :label="item.groupName" :value="item.id"> </el-option>
       </el-select>
-      <!-- <el-button type="primary" size="mini" @click="noss" title="noss">nossMint</el-button> -->
-      <!-- <el-button type="primary" size="mini" @click="nossMonitor" title="noss">noss监控</el-button> -->
       <el-button type="primary" size="mini" @click="getList" title="刷新列表">查询</el-button>
-      <!-- <el-button type="primary" size="mini" @click="stop" title="刷新列表">停止</el-button> -->
     </el-row>
     <el-table v-loading="loading" :data="tableData" style="width: 100%" height="100%" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55"></el-table-column>

@@ -110,6 +110,7 @@
     <AddDialog ref="addDialog" @success="getList"></AddDialog>
     <template slot="footer-left">
       <el-button type="primary" :loading="batchRunLoading" :disabled="!selectedEmails.length" size="small" @click="batchRunRefresh">批量刷新</el-button>
+      <el-button type="primary" :loading="batchRunLoading" :disabled="!selectedEmails.length" size="small" @click="batchRunDraw">批量抽奖</el-button>
       <span style="font-size: 12px; color: gray;margin-left: 10px">{{ `荣誉点总量： ${ totalHonorPoints }` }}</span>
       <!-- <el-button type="danger" :disabled="!selectedEmails.length" size="small">批量删除</el-button> -->
     </template>
@@ -283,6 +284,12 @@ export default {
     async batchRunRefresh() {
       this.batchRunLoading = true
       await this.batchRun(this.getDetail).finally(() => {
+        this.batchRunLoading = false
+      })
+    },
+    async batchRunDraw(){
+      this.batchRunLoading = true
+      await this.batchRun(this.lotto).finally(() => {
         this.batchRunLoading = false
       })
     },
